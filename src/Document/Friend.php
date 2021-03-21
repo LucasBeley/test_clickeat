@@ -13,112 +13,114 @@ use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
  */
 class Friend
 {
+	const TYPES = ['HOOMAN', 'NOOB', 'UNICORN', 'GOD'];
+
 	/**
 	 * @MongoDB\Id()
-	 * @var string
+	 * @var null|string
 	 */
 	private $id;
 
 	/**
 	 * @MongoDB\Field(type="string")
-	 * @var string
+	 * @var null|string
 	 */
 	private $name;
 
 	/**
 	 * @MongoDB\Field(type="string")
-	 * @var string
+	 * @var null|string
 	 */
 	private $type;
 
 	/**
 	 * @MongoDB\Field(type="int")
-	 * @var integer
+	 * @var null|integer
 	 */
 	private $friendshipValue;
 
 	/**
 	 * @MongoDB\Field(type="collection")
-	 * @var string[]
+	 * @var null|string[]
 	 */
 	private $tags;
 
 	/**
-	 * @return string
+	 * @return string|null
 	 */
-	public function getId(): string
+	public function getId(): ?string
 	{
 		return $this->id;
 	}
 
 	/**
-	 * @param string $id
+	 * @param string|null $id
 	 */
-	public function setId(string $id): void
+	public function setId(?string $id): void
 	{
 		$this->id = $id;
 	}
 
 	/**
-	 * @return string
+	 * @return string|null
 	 */
-	public function getName(): string
+	public function getName(): ?string
 	{
 		return $this->name;
 	}
 
 	/**
-	 * @param string $name
+	 * @param string|null $name
 	 */
-	public function setName(string $name): void
+	public function setName(?string $name): void
 	{
 		$this->name = $name;
 	}
 
 	/**
-	 * @return string
+	 * @return string|null
 	 */
-	public function getType(): string
+	public function getType(): ?string
 	{
 		return $this->type;
 	}
 
 	/**
-	 * @param string $type
+	 * @param string|null $type
 	 */
-	public function setType(string $type): void
+	public function setType(?string $type): void
 	{
 		$this->type = $type;
 	}
 
 	/**
-	 * @return int
+	 * @return int|null
 	 */
-	public function getFriendshipValue(): int
+	public function getFriendshipValue(): ?int
 	{
 		return $this->friendshipValue;
 	}
 
 	/**
-	 * @param int $friendshipValue
+	 * @param int|null $friendshipValue
 	 */
-	public function setFriendshipValue(int $friendshipValue): void
+	public function setFriendshipValue(?int $friendshipValue): void
 	{
 		$this->friendshipValue = $friendshipValue;
 	}
 
 	/**
-	 * @return string[]
+	 * @return string[]|null
 	 */
-	public function getTags(): array
+	public function getTags(): ?array
 	{
 		return $this->tags;
 	}
 
 	/**
-	 * @param string[] $tags
+	 * @param string[]|null $tags
 	 */
-	public function setTags(array $tags): void
+	public function setTags(?array $tags): void
 	{
 		$this->tags = $tags;
 	}
