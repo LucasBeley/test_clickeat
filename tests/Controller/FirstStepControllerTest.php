@@ -4,6 +4,7 @@
 namespace App\Tests\Controller;
 
 
+use App\DataFixture\FriendsFixture;
 use App\Document\Friend;
 use App\Exception\FriendshipOutOfBoundsException;
 use App\Exception\MissingParametersException;
@@ -265,5 +266,33 @@ class FirstStepControllerTest extends WebTestCase
 			[$friendWithTooLowFriendship],
 			[$friendWithWrongTagsType],
 		];
+	}
+
+	/**
+	 * Test the listings of all friends
+	 */
+	public function testListFriends()
+	{
+		$serializer = new Serializer([new GetSetMethodNormalizer()], [new JsonEncoder()]);
+		$this->loadFixtures([FriendsFixture::class], false, 'doctrine_mongodb.odm.default_document_manager');
+
+		//Execute request
+		self::$client->request('GET', '/list_friends');
+
+		//HTTP response is OK
+		$this->assertEquals(200, self::$client->getResponse()->getStatusCode());
+
+		//Returned object is an array of Friend documents
+		try {
+			$responseContent = json_decode(self::$client->getResponse()->getContent());
+			$this->assertIsArray($responseContent);
+			for ($i = 0; $i < count($responseContent); $i++) {
+				/** @var Friend $friend */
+				$friend = $serializer->deserialize(self::$client->getResponse()->getContent(), Friend::class, 'json');
+				$this->assertInstanceOf(Friend::class, $friend);
+			}
+		} catch (Exception $exception ) {
+			$this->fail("Unserialization of json to Friend document failed.");
+		}
 	}
 }

@@ -53,6 +53,21 @@ class FirstStepController extends AbstractController
 		return $this->json($errors);
 	}
 
+	/**
+	 * List Poppy's friends
+	 *
+	 * @Route(name="listFriends", path="/list_friends")
+	 * @param DocumentManager $dm
+	 * @return Response
+	 */
+	public function listFriends(DocumentManager $dm): Response
+	{
+		$friendRepository = $dm->getRepository(Friend::class);
+		$friends = $friendRepository->findAll();
+
+		return $this->json($friends);
+	}
+
 	private function validateParameters($name, $type, $friendshipvalue, $tags): array
 	{
 		$errors = [];
