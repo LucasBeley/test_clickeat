@@ -13,6 +13,8 @@ use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
  */
 class Friend
 {
+	//TODO Use const for member's name
+
 	const TYPES = ['HOOMAN', 'NOOB', 'UNICORN', 'GOD'];
 
 	/**

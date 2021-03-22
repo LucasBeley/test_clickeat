@@ -20,7 +20,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class FirstStepController extends AbstractController
 {
 	/**
-	 * Add a friend to Poppy, using url params 'name', 'type', 'friendshipvalue' and 'tags'
+	 * Add a friend to Poppy, using url params 'name', 'type', 'friendshipValue' and 'tags'
 	 *
 	 * @Route(name="createFriend", path="/create_friend")
 	 * @param Request $request
@@ -33,7 +33,7 @@ class FirstStepController extends AbstractController
 		$errors = $this->validateParameters(
 			$request->get('name'),
 			$request->get('type'),
-			$request->get('friendshipvalue'),
+			$request->get('friendshipValue'),
 			$request->get('tags')
 		);
 
@@ -41,7 +41,7 @@ class FirstStepController extends AbstractController
 			$friend = new Friend();
 			$friend->setName($request->get('name'));
 			$friend->setType($request->get('type'));
-			$friend->setFriendshipValue($request->get('friendshipvalue'));
+			$friend->setFriendshipValue($request->get('friendshipValue'));
 			$friend->setTags($request->get('tags'));
 
 			$dm->persist($friend);
@@ -57,18 +57,39 @@ class FirstStepController extends AbstractController
 	 * List Poppy's friends
 	 *
 	 * @Route(name="listFriends", path="/list_friends")
+	 * @param Request $request
 	 * @param DocumentManager $dm
 	 * @return Response
 	 */
-	public function listFriends(DocumentManager $dm): Response
+	public function listFriends(Request $request, DocumentManager $dm): Response
 	{
 		$friendRepository = $dm->getRepository(Friend::class);
-		$friends = $friendRepository->findAll();
+
+		$name = $request->get('name');
+		$type = $request->get('type');
+		$friendshipValue = $request->get('friendshipValue');
+		$tags = $request->get('tags');
+
+		$criteria = [];
+		if ($name) {
+			$criteria['name'] = $name;
+		}
+		if ($type) {
+			$criteria['type'] = $type;
+		}
+		if ($friendshipValue) {
+			$criteria['friendshipValue'] = $friendshipValue;
+		}
+		if ($request->get('tags')) {
+			$criteria['tags'] = is_array($tags) ? ['$all' => $tags] : $tags;
+		}
+
+		$friends = $friendRepository->findBy($criteria);
 
 		return $this->json($friends);
 	}
 
-	private function validateParameters($name, $type, $friendshipvalue, $tags): array
+	private function validateParameters($name, $type, $friendshipValue, $tags): array
 	{
 		$errors = [];
 
@@ -88,12 +109,12 @@ class FirstStepController extends AbstractController
 			$this->addException(new InvalidTypeOfFriendException($type), $errors);
 		}
 
-		//Valid param friendshipvalue
-		if ($friendshipvalue === null) {
-			$this->addException(new MissingParametersException('friendshipvalue'), $errors);
-		} else if (!is_numeric($friendshipvalue)) {
-			$this->addException(new WrongTypeForParameterException('friendshipvalue', gettype($friendshipvalue), 'integer'), $errors);
-		} else if ($friendshipvalue < 0 || $friendshipvalue > 100) {
+		//Valid param friendshipValue
+		if ($friendshipValue === null) {
+			$this->addException(new MissingParametersException('friendshipValue'), $errors);
+		} else if (!is_numeric($friendshipValue)) {
+			$this->addException(new WrongTypeForParameterException('friendshipValue', gettype($friendshipValue), 'integer'), $errors);
+		} else if ($friendshipValue < 0 || $friendshipValue > 100) {
 			$this->addException(new FriendshipOutOfBoundsException(), $errors);
 		}
 
