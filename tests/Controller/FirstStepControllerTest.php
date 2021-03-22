@@ -69,11 +69,11 @@ class FirstStepControllerTest extends WebTestCase
 
 		//Object properties are the ones given in the request
 		$this->assertNotNull($responseContent->getId());
-		$this->assertEquals($friend['name'], $responseContent->getName());
-		$this->assertEquals($friend['type'], $responseContent->getType());
-		$this->assertEquals($friend['friendshipValue'], $responseContent->getFriendshipValue());
-		if (array_key_exists('tags', $friend)) {
-			$this->assertEquals($friend['tags'], $responseContent->getTags());
+		$this->assertEquals($friend[Friend::FIELD_NAME], $responseContent->getName());
+		$this->assertEquals($friend[Friend::FIELD_TYPE], $responseContent->getType());
+		$this->assertEquals($friend[Friend::FIELD_FRIENDSHIP_VALUE], $responseContent->getFriendshipValue());
+		if (array_key_exists(Friend::FIELD_TAGS, $friend)) {
+			$this->assertEquals($friend[Friend::FIELD_TAGS], $responseContent->getTags());
 		} else {
 			$this->assertNull($responseContent->getTags());
 		}
@@ -108,32 +108,32 @@ class FirstStepControllerTest extends WebTestCase
 		}, $responseContent['errors']);
 
 		//Check errors returned for name
-		if (!array_key_exists('name', $friend) || $friend['name'] === "") {
+		if (!array_key_exists(Friend::FIELD_NAME, $friend) || $friend[Friend::FIELD_NAME] === "") {
 			$this->assertContains(MissingParametersException::class, $errorTypes);
-		} else if (!is_string($friend['name'])) {
+		} else if (!is_string($friend[Friend::FIELD_NAME])) {
 			$this->assertContains(WrongTypeForParameterException::class, $errorTypes);
 		}
 
 		//Check errors returned for type
-		if (!array_key_exists('type', $friend) || $friend['type'] === "") {
+		if (!array_key_exists(Friend::FIELD_TYPE, $friend) || $friend[Friend::FIELD_TYPE] === "") {
 			$this->assertContains(MissingParametersException::class, $errorTypes);
-		} else if (!is_string($friend['type'])) {
+		} else if (!is_string($friend[Friend::FIELD_TYPE])) {
 			$this->assertContains(WrongTypeForParameterException::class, $errorTypes);
-		} else if (!in_array($friend['type'], Friend::TYPES)) {
+		} else if (!in_array($friend[Friend::FIELD_TYPE], Friend::TYPES)) {
 			$this->assertContains(InvalidTypeOfFriendException::class, $errorTypes);
 		}
 
 		//Check errors returned for friendshipValue
-		if (!array_key_exists('friendshipValue', $friend)) {
+		if (!array_key_exists(Friend::FIELD_FRIENDSHIP_VALUE, $friend)) {
 			$this->assertContains(MissingParametersException::class, $errorTypes);
-		} else if (!is_numeric($friend['friendshipValue'])) {
+		} else if (!is_numeric($friend[Friend::FIELD_FRIENDSHIP_VALUE])) {
 			$this->assertContains(WrongTypeForParameterException::class, $errorTypes);
-		} else if ($friend['friendshipValue'] < 0 || $friend['friendshipValue'] > 100) {
+		} else if ($friend[Friend::FIELD_FRIENDSHIP_VALUE] < 0 || $friend[Friend::FIELD_FRIENDSHIP_VALUE] > 100) {
 			$this->assertContains(FriendshipOutOfBoundsException::class, $errorTypes);
 		}
 
 		//Check errors returned for tags
-		if (array_key_exists('tags', $friend) && !is_array($friend['tags'])) {
+		if (array_key_exists(Friend::FIELD_TAGS, $friend) && !is_array($friend[Friend::FIELD_TAGS])) {
 			$this->assertContains(WrongTypeForParameterException::class, $errorTypes);
 		}
 
@@ -144,16 +144,16 @@ class FirstStepControllerTest extends WebTestCase
 	public function provideFriendsWithEveryPropertyGood(): array
 	{
 		$friendWithAllGood = [
-			'name' => "FriendWithAllGood",
-			'type' => "HOOMAN",
-			'friendshipValue' => 50,
-			'tags' => ["Tag 1", "Tag 2", "Tag 3"],
+			Friend::FIELD_NAME => "FriendWithAllGood",
+			Friend::FIELD_TYPE => "HOOMAN",
+			Friend::FIELD_FRIENDSHIP_VALUE => 50,
+			Friend::FIELD_TAGS => ["Tag 1", "Tag 2", "Tag 3"],
 		];
 
 		$friendWithNoTags = [
-			'name' => "FriendWithNoTags",
-			'type' => "GOD",
-			'friendshipValue' => 14
+			Friend::FIELD_NAME => "FriendWithNoTags",
+			Friend::FIELD_TYPE => "GOD",
+			Friend::FIELD_FRIENDSHIP_VALUE => 14
 		];
 
 		return [
@@ -167,91 +167,91 @@ class FirstStepControllerTest extends WebTestCase
 		$friendWithAllNull = [];
 
 		$friendWithAllBlank = [
-			'name' => "",
-			'type' => "",
-			'friendshipValue' => 67,
-			'tags' => [],
+			Friend::FIELD_NAME => "",
+			Friend::FIELD_TYPE => "",
+			Friend::FIELD_FRIENDSHIP_VALUE => 67,
+			Friend::FIELD_TAGS => [],
 		];
 
 		$friendWithoutName = [
-			'type' => "GOD",
-			'friendshipValue' => 4,
-			'tags' => ["Tag 1", "Tag 3"],
+			Friend::FIELD_TYPE => "GOD",
+			Friend::FIELD_FRIENDSHIP_VALUE => 4,
+			Friend::FIELD_TAGS => ["Tag 1", "Tag 3"],
 		];
 
 		$friendWithBlankName = [
-			'name' => "",
-			'type' => "GOD",
-			'friendshipValue' => 43,
-			'tags' => ["Tag 1"],
+			Friend::FIELD_NAME => "",
+			Friend::FIELD_TYPE => "GOD",
+			Friend::FIELD_FRIENDSHIP_VALUE => 43,
+			Friend::FIELD_TAGS => ["Tag 1"],
 		];
 
 		$friendWithWrongNameType = [
-			'name' => [],
-			'type' => "GOD",
-			'friendshipValue' => 43,
-			'tags' => ["Tag 1"],
+			Friend::FIELD_NAME => [],
+			Friend::FIELD_TYPE => "GOD",
+			Friend::FIELD_FRIENDSHIP_VALUE => 43,
+			Friend::FIELD_TAGS => ["Tag 1"],
 		];
 
 		$friendWithoutType = [
-			'name' => "FriendWithoutType",
-			'friendshipValue' => 99,
-			'tags' => ["Tag 1", "Tag 2"],
+			Friend::FIELD_NAME => "FriendWithoutType",
+			Friend::FIELD_FRIENDSHIP_VALUE => 99,
+			Friend::FIELD_TAGS => ["Tag 1", "Tag 2"],
 		];
 
 		$friendWithBlankType = [
-			'name' => "FriendWithBlankType",
-			'type' => "",
-			'friendshipValue' => 94,
-			'tags' => ["Tag 1"],
+			Friend::FIELD_NAME => "FriendWithBlankType",
+			Friend::FIELD_TYPE => "",
+			Friend::FIELD_FRIENDSHIP_VALUE => 94,
+			Friend::FIELD_TAGS => ["Tag 1"],
 		];
 
 		$friendWithWrongType = [
-			'name' => "FriendWithWrongType",
-			'type' => "WRONGTYPE",
-			'friendshipValue' => 45,
-			'tags' => ["Tag 3"],
+			Friend::FIELD_NAME => "FriendWithWrongType",
+			Friend::FIELD_TYPE => "WRONGTYPE",
+			Friend::FIELD_FRIENDSHIP_VALUE => 45,
+			Friend::FIELD_TAGS => ["Tag 3"],
 		];
 
 		$friendWithWrongTypeType = [
-			'name' => "FriendWithWrongTypeType",
-			'type' => [],
-			'friendshipValue' => 45,
-			'tags' => ["Tag 3"],
+			Friend::FIELD_NAME => "FriendWithWrongTypeType",
+			Friend::FIELD_TYPE => [],
+			Friend::FIELD_FRIENDSHIP_VALUE => 45,
+			Friend::FIELD_TAGS => ["Tag 3"],
 		];
 
 		$friendWithoutFriendship = [
-			'name' => "FriendWithoutFriendship",
-			'type' => "UNICORN",
-			'tags' => ["Tag 1", "Tag 2", "Tag 3"],
+			Friend::FIELD_NAME => "FriendWithoutFriendship",
+			Friend::FIELD_TYPE => "UNICORN",
+			Friend::FIELD_TAGS => ["Tag 1", "Tag 2", "Tag 3"],
 		];
 
 		$friendWithWrongFriendshipType = [
-			'name' => "FriendWithWrongFriendshipType",
-			'type' => "UNICORN",
-			'friendshipValue' => "test",
-			'tags' => ["Tag 1", "Tag 2", "Tag 3"],
+			Friend::FIELD_NAME => "FriendWithWrongFriendshipType",
+			Friend::FIELD_TYPE => "UNICORN",
+			Friend::FIELD_FRIENDSHIP_VALUE => "test",
+			Friend::FIELD_TAGS => ["Tag 1", "Tag 2", "Tag 3"],
 		];
 
 		$friendWithTooHighFriendship = [
-			'name' => "FriendWithTooHighFriendship",
-			'type' => "NOOB",
-			'friendshipValue' => 150,
-			'tags' => ["Tag 1", "Tag 2"],
+			Friend::FIELD_NAME => "FriendWithTooHighFriendship",
+			Friend::FIELD_TYPE => "NOOB",
+			Friend::FIELD_FRIENDSHIP_VALUE => 150,
+			Friend::FIELD_TAGS => ["Tag 1", "Tag 2"],
 		];
 
 		$friendWithTooLowFriendship = [
-			'name' => "FriendWithTooLowFriendship",
-			'type' => "NOOB",
-			'friendshipValue' => -1,
-			'tags' => ["Tag 1", "Tag 2", "Tag 3"],
+			Friend::FIELD_NAME => "FriendWithTooLowFriendship",
+			Friend::FIELD_TYPE => "NOOB",
+			Friend::FIELD_FRIENDSHIP_VALUE => -1,
+			Friend::FIELD_TAGS => ["Tag 1", "Tag 2", "Tag 3"],
 		];
 
 		$friendWithWrongTagsType = [
-			'name' => "FriendWithWrongTagsType",
-			'type' => "NOOB",
-			'friendshipValue' => 35,
-			'tags' => 687,
+			Friend::FIELD_NAME => "FriendWithWrongTagsType",
+			Friend::FIELD_TYPE => "NOOB",
+			Friend::FIELD_FRIENDSHIP_VALUE => 35,
+			Friend::FIELD_TAGS => 687,
 		];
 
 		return [
@@ -355,17 +355,17 @@ class FirstStepControllerTest extends WebTestCase
 
 		/** @var Friend $friendAsserted */
 		foreach ($friends as $friendAsserted) {
-			if (array_key_exists('name', $criteria)) {
-				$this->assertEquals($criteria['name'], $friendAsserted->getName());
+			if (array_key_exists(Friend::FIELD_NAME, $criteria)) {
+				$this->assertEquals($criteria[Friend::FIELD_NAME], $friendAsserted->getName());
 			}
-			if (array_key_exists('type', $criteria)) {
-				$this->assertEquals($criteria['type'], $friendAsserted->getType());
+			if (array_key_exists(Friend::FIELD_TYPE, $criteria)) {
+				$this->assertEquals($criteria[Friend::FIELD_TYPE], $friendAsserted->getType());
 			}
-			if (array_key_exists('friendshipValue', $criteria)) {
-				$this->assertEquals($criteria['friendshipValue'], $friendAsserted->getFriendshipValue());
+			if (array_key_exists(Friend::FIELD_FRIENDSHIP_VALUE, $criteria)) {
+				$this->assertEquals($criteria[Friend::FIELD_FRIENDSHIP_VALUE], $friendAsserted->getFriendshipValue());
 			}
-			if (array_key_exists('tags', $criteria)) {
-				foreach ($criteria['tags'] as $tag) {
+			if (array_key_exists(Friend::FIELD_TAGS, $criteria)) {
+				foreach ($criteria[Friend::FIELD_TAGS] as $tag) {
 					$this->assertContains($tag, $friendAsserted->getType());
 				}
 			}
@@ -375,106 +375,106 @@ class FirstStepControllerTest extends WebTestCase
 	public function provideCriteriaForListFriends()
 	{
 		$friendWithAllGood = [
-			'name' => "FriendWithAllGood",
-			'type' => "HOOMAN",
-			'friendshipValue' => 50,
-			'tags' => ["Tag 1", "Tag 2", "Tag 3"],
+			Friend::FIELD_NAME => "FriendWithAllGood",
+			Friend::FIELD_TYPE => "HOOMAN",
+			Friend::FIELD_FRIENDSHIP_VALUE => 50,
+			Friend::FIELD_TAGS => ["Tag 1", "Tag 2", "Tag 3"],
 		];
 
 		$friendWithNoTags = [
-			'name' => "FriendWithNoTags",
-			'type' => "GOD",
-			'friendshipValue' => 14
+			Friend::FIELD_NAME => "FriendWithNoTags",
+			Friend::FIELD_TYPE => "GOD",
+			Friend::FIELD_FRIENDSHIP_VALUE => 14
 		];
 
 		$friendWithAllNull = [];
 
 		$friendWithAllBlank = [
-			'name' => "",
-			'type' => "",
-			'friendshipValue' => 67,
-			'tags' => [],
+			Friend::FIELD_NAME => "",
+			Friend::FIELD_TYPE => "",
+			Friend::FIELD_FRIENDSHIP_VALUE => 67,
+			Friend::FIELD_TAGS => [],
 		];
 
 		$friendWithoutName = [
-			'type' => "GOD",
-			'friendshipValue' => 4,
-			'tags' => ["Tag 1", "Tag 3"],
+			Friend::FIELD_TYPE => "GOD",
+			Friend::FIELD_FRIENDSHIP_VALUE => 4,
+			Friend::FIELD_TAGS => ["Tag 1", "Tag 3"],
 		];
 
 		$friendWithBlankName = [
-			'name' => "",
-			'type' => "GOD",
-			'friendshipValue' => 43,
-			'tags' => ["Tag 1"],
+			Friend::FIELD_NAME => "",
+			Friend::FIELD_TYPE => "GOD",
+			Friend::FIELD_FRIENDSHIP_VALUE => 43,
+			Friend::FIELD_TAGS => ["Tag 1"],
 		];
 
 		$friendWithWrongNameType = [
-			'name' => [],
-			'type' => "GOD",
-			'friendshipValue' => 43,
-			'tags' => ["Tag 1"],
+			Friend::FIELD_NAME => [],
+			Friend::FIELD_TYPE => "GOD",
+			Friend::FIELD_FRIENDSHIP_VALUE => 43,
+			Friend::FIELD_TAGS => ["Tag 1"],
 		];
 
 		$friendWithoutType = [
-			'name' => "FriendWithoutType",
-			'friendshipValue' => 99,
-			'tags' => ["Tag 1", "Tag 2"],
+			Friend::FIELD_NAME => "FriendWithoutType",
+			Friend::FIELD_FRIENDSHIP_VALUE => 99,
+			Friend::FIELD_TAGS => ["Tag 1", "Tag 2"],
 		];
 
 		$friendWithBlankType = [
-			'name' => "FriendWithBlankType",
-			'type' => "",
-			'friendshipValue' => 94,
-			'tags' => ["Tag 1"],
+			Friend::FIELD_NAME => "FriendWithBlankType",
+			Friend::FIELD_TYPE => "",
+			Friend::FIELD_FRIENDSHIP_VALUE => 94,
+			Friend::FIELD_TAGS => ["Tag 1"],
 		];
 
 		$friendWithWrongType = [
-			'name' => "FriendWithWrongType",
-			'type' => "WRONGTYPE",
-			'friendshipValue' => 45,
-			'tags' => ["Tag 3"],
+			Friend::FIELD_NAME => "FriendWithWrongType",
+			Friend::FIELD_TYPE => "WRONGTYPE",
+			Friend::FIELD_FRIENDSHIP_VALUE => 45,
+			Friend::FIELD_TAGS => ["Tag 3"],
 		];
 
 		$friendWithWrongTypeType = [
-			'name' => "FriendWithWrongTypeType",
-			'type' => [],
-			'friendshipValue' => 45,
-			'tags' => ["Tag 3"],
+			Friend::FIELD_NAME => "FriendWithWrongTypeType",
+			Friend::FIELD_TYPE => [],
+			Friend::FIELD_FRIENDSHIP_VALUE => 45,
+			Friend::FIELD_TAGS => ["Tag 3"],
 		];
 
 		$friendWithoutFriendship = [
-			'name' => "FriendWithoutFriendship",
-			'type' => "UNICORN",
-			'tags' => ["Tag 1", "Tag 2", "Tag 3"],
+			Friend::FIELD_NAME => "FriendWithoutFriendship",
+			Friend::FIELD_TYPE => "UNICORN",
+			Friend::FIELD_TAGS => ["Tag 1", "Tag 2", "Tag 3"],
 		];
 
 		$friendWithWrongFriendshipType = [
-			'name' => "FriendWithWrongFriendshipType",
-			'type' => "UNICORN",
-			'friendshipValue' => "test",
-			'tags' => ["Tag 1", "Tag 2", "Tag 3"],
+			Friend::FIELD_NAME => "FriendWithWrongFriendshipType",
+			Friend::FIELD_TYPE => "UNICORN",
+			Friend::FIELD_FRIENDSHIP_VALUE => "test",
+			Friend::FIELD_TAGS => ["Tag 1", "Tag 2", "Tag 3"],
 		];
 
 		$friendWithTooHighFriendship = [
-			'name' => "FriendWithTooHighFriendship",
-			'type' => "NOOB",
-			'friendshipValue' => 150,
-			'tags' => ["Tag 1", "Tag 2"],
+			Friend::FIELD_NAME => "FriendWithTooHighFriendship",
+			Friend::FIELD_TYPE => "NOOB",
+			Friend::FIELD_FRIENDSHIP_VALUE => 150,
+			Friend::FIELD_TAGS => ["Tag 1", "Tag 2"],
 		];
 
 		$friendWithTooLowFriendship = [
-			'name' => "FriendWithTooLowFriendship",
-			'type' => "NOOB",
-			'friendshipValue' => -1,
-			'tags' => ["Tag 1", "Tag 2", "Tag 3"],
+			Friend::FIELD_NAME => "FriendWithTooLowFriendship",
+			Friend::FIELD_TYPE => "NOOB",
+			Friend::FIELD_FRIENDSHIP_VALUE => -1,
+			Friend::FIELD_TAGS => ["Tag 1", "Tag 2", "Tag 3"],
 		];
 
 		$friendWithWrongTagsType = [
-			'name' => "FriendWithWrongTagsType",
-			'type' => "NOOB",
-			'friendshipValue' => 35,
-			'tags' => 687,
+			Friend::FIELD_NAME => "FriendWithWrongTagsType",
+			Friend::FIELD_TYPE => "NOOB",
+			Friend::FIELD_FRIENDSHIP_VALUE => 35,
+			Friend::FIELD_TAGS => 687,
 		];
 
 		return [
