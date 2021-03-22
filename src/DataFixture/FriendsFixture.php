@@ -20,7 +20,7 @@ class FriendsFixture extends Fixture implements FixtureInterface
 	 */
 	public function load(ObjectManager $manager) {
 
-		for($i = 0; $i < 20; $i++) {
+		for($i = 0; $i < 1000; $i++) {
 			$friend = new Friend();
 			$friend->setName("Friend ".$i);
 			$friend->setType($this->types[random_int(0, count($this->types) - 1)]);

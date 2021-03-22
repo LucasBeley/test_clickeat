@@ -329,7 +329,11 @@ class FirstStepControllerTest extends WebTestCase
 		$serializer = new Serializer([new GetSetMethodNormalizer()], [new JsonEncoder()]);
 		$this->loadFixtures([FriendsFixture::class], false, self::DEFAULT_DOC_MANAGER_SERVICE);
 		$friendRepository = $this->documentManager->getRepository(Friend::class);
-		$expectedResults = $friendRepository->findBy($criteria);
+		$copyCriteria = $criteria;
+		if (array_key_exists('tags', $copyCriteria) && is_array($copyCriteria['tags'])) {
+			$copyCriteria['tags'] = ['$all' => $criteria['tags']];
+		}
+		$expectedResults = $friendRepository->findBy($copyCriteria);
 
 		//Execute request
 		self::$client->request('GET', '/list_friends', $criteria);
@@ -372,7 +376,7 @@ class FirstStepControllerTest extends WebTestCase
 		}
 	}
 
-	public function provideCriteriaForListFriends()
+	public function provideCriteriaForListFriends(): array
 	{
 		$friendWithAllGood = [
 			Friend::FIELD_NAME => "FriendWithAllGood",
@@ -389,24 +393,11 @@ class FirstStepControllerTest extends WebTestCase
 
 		$friendWithAllNull = [];
 
-		$friendWithAllBlank = [
-			Friend::FIELD_NAME => "",
-			Friend::FIELD_TYPE => "",
-			Friend::FIELD_FRIENDSHIP_VALUE => 67,
-			Friend::FIELD_TAGS => [],
-		];
 
 		$friendWithoutName = [
 			Friend::FIELD_TYPE => "GOD",
 			Friend::FIELD_FRIENDSHIP_VALUE => 4,
 			Friend::FIELD_TAGS => ["Tag 1", "Tag 3"],
-		];
-
-		$friendWithBlankName = [
-			Friend::FIELD_NAME => "",
-			Friend::FIELD_TYPE => "GOD",
-			Friend::FIELD_FRIENDSHIP_VALUE => 43,
-			Friend::FIELD_TAGS => ["Tag 1"],
 		];
 
 		$friendWithWrongNameType = [
@@ -420,13 +411,6 @@ class FirstStepControllerTest extends WebTestCase
 			Friend::FIELD_NAME => "FriendWithoutType",
 			Friend::FIELD_FRIENDSHIP_VALUE => 99,
 			Friend::FIELD_TAGS => ["Tag 1", "Tag 2"],
-		];
-
-		$friendWithBlankType = [
-			Friend::FIELD_NAME => "FriendWithBlankType",
-			Friend::FIELD_TYPE => "",
-			Friend::FIELD_FRIENDSHIP_VALUE => 94,
-			Friend::FIELD_TAGS => ["Tag 1"],
 		];
 
 		$friendWithWrongType = [
@@ -481,12 +465,9 @@ class FirstStepControllerTest extends WebTestCase
 			[$friendWithAllGood],
 			[$friendWithNoTags],
 			[$friendWithAllNull],
-			[$friendWithAllBlank],
 			[$friendWithoutName],
-			[$friendWithBlankName],
 			[$friendWithWrongNameType],
 			[$friendWithoutType],
-			[$friendWithBlankType],
 			[$friendWithWrongType],
 			[$friendWithWrongTypeType],
 			[$friendWithoutFriendship],

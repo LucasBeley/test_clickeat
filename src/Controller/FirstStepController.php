@@ -80,7 +80,7 @@ class FirstStepController extends AbstractController
 		if ($friendshipValue) {
 			$criteria[Friend::FIELD_FRIENDSHIP_VALUE] = $friendshipValue;
 		}
-		if ($request->get(Friend::FIELD_TAGS)) {
+		if ($tags) {
 			$criteria[Friend::FIELD_TAGS] = is_array($tags) ? ['$all' => $tags] : $tags;
 		}
 
