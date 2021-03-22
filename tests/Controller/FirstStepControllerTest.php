@@ -275,7 +275,7 @@ class FirstStepControllerTest extends WebTestCase
 	/**
 	 * Test the listings of all friends
 	 */
-	public function testListFriends()
+	public function testListAllFriends()
 	{
 		$serializer = new Serializer([new GetSetMethodNormalizer()], [new JsonEncoder()]);
 		$this->loadFixtures([FriendsFixture::class], false, self::DEFAULT_DOC_MANAGER_SERVICE);
@@ -318,5 +318,182 @@ class FirstStepControllerTest extends WebTestCase
 		$responseContent = json_decode(self::$client->getResponse()->getContent());
 		$this->assertIsArray($responseContent);
 		$this->assertCount(0, $responseContent);
+	}
+
+	/**
+	 * @dataProvider provideCriteriaForListFriends
+	 * @param array $criteria
+	 */
+	public function testListFriendsWithCriteria(array $criteria)
+	{
+		$serializer = new Serializer([new GetSetMethodNormalizer()], [new JsonEncoder()]);
+		$this->loadFixtures([FriendsFixture::class], false, self::DEFAULT_DOC_MANAGER_SERVICE);
+		$friendRepository = $this->documentManager->getRepository(Friend::class);
+		$nbFriendInserted = count($friendRepository->findAll());
+
+		//Execute request
+		self::$client->request('GET', '/list_friends', $criteria);
+
+		//HTTP response is OK
+		$this->assertEquals(200, self::$client->getResponse()->getStatusCode());
+
+		//Returned object is an array of Friend documents
+		$responseContent = json_decode(self::$client->getResponse()->getContent());
+		$this->assertIsArray($responseContent);
+		$this->assertLessThanOrEqual($nbFriendInserted, count($responseContent));
+		$friends = [];
+		for ($i = 0; $i < count($responseContent); $i++) {
+			try {
+				/** @var Friend $friend */
+				$friend = $serializer->deserialize(json_encode($responseContent[$i]), Friend::class, 'json');
+				$this->assertInstanceOf(Friend::class, $friend);
+				$friends[] = $friend;
+			} catch (Exception $exception) {
+				$this->fail("Unserialization of json to Friend document failed.");
+			}
+		}
+
+		/** @var Friend $friendAsserted */
+		foreach ($friends as $friendAsserted) {
+			if (array_key_exists('name', $criteria)) {
+				$this->assertEquals($criteria['name'], $friendAsserted->getName());
+			}
+			if (array_key_exists('type', $criteria)) {
+				$this->assertEquals($criteria['type'], $friendAsserted->getType());
+			}
+			if (array_key_exists('friendshipvalue', $criteria)) {
+				$this->assertEquals($criteria['friendshipvalue'], $friendAsserted->getFriendshipValue());
+			}
+			if (array_key_exists('tags', $criteria)) {
+				foreach ($criteria['tags'] as $tag) {
+					$this->assertContains($tag, $friendAsserted->getType());
+				}
+			}
+		}
+	}
+
+	public function provideCriteriaForListFriends()
+	{
+		$friendWithAllGood = [
+			'name' => "FriendWithAllGood",
+			'type' => "HOOMAN",
+			'friendshipvalue' => 50,
+			'tags' => ["Tag 1", "Tag 2", "Tag 3"],
+		];
+
+		$friendWithNoTags = [
+			'name' => "FriendWithNoTags",
+			'type' => "GOD",
+			'friendshipvalue' => 14
+		];
+
+		$friendWithAllNull = [];
+
+		$friendWithAllBlank = [
+			'name' => "",
+			'type' => "",
+			'friendshipvalue' => 67,
+			'tags' => [],
+		];
+
+		$friendWithoutName = [
+			'type' => "GOD",
+			'friendshipvalue' => 4,
+			'tags' => ["Tag 1", "Tag 3"],
+		];
+
+		$friendWithBlankName = [
+			'name' => "",
+			'type' => "GOD",
+			'friendshipvalue' => 43,
+			'tags' => ["Tag 1"],
+		];
+
+		$friendWithWrongNameType = [
+			'name' => [],
+			'type' => "GOD",
+			'friendshipvalue' => 43,
+			'tags' => ["Tag 1"],
+		];
+
+		$friendWithoutType = [
+			'name' => "FriendWithoutType",
+			'friendshipvalue' => 99,
+			'tags' => ["Tag 1", "Tag 2"],
+		];
+
+		$friendWithBlankType = [
+			'name' => "FriendWithBlankType",
+			'type' => "",
+			'friendshipvalue' => 94,
+			'tags' => ["Tag 1"],
+		];
+
+		$friendWithWrongType = [
+			'name' => "FriendWithWrongType",
+			'type' => "WRONGTYPE",
+			'friendshipvalue' => 45,
+			'tags' => ["Tag 3"],
+		];
+
+		$friendWithWrongTypeType = [
+			'name' => "FriendWithWrongTypeType",
+			'type' => [],
+			'friendshipvalue' => 45,
+			'tags' => ["Tag 3"],
+		];
+
+		$friendWithoutFriendship = [
+			'name' => "FriendWithoutFriendship",
+			'type' => "UNICORN",
+			'tags' => ["Tag 1", "Tag 2", "Tag 3"],
+		];
+
+		$friendWithWrongFriendshipType = [
+			'name' => "FriendWithWrongFriendshipType",
+			'type' => "UNICORN",
+			'friendshipvalue' => "test",
+			'tags' => ["Tag 1", "Tag 2", "Tag 3"],
+		];
+
+		$friendWithTooHighFriendship = [
+			'name' => "FriendWithTooHighFriendship",
+			'type' => "NOOB",
+			'friendshipvalue' => 150,
+			'tags' => ["Tag 1", "Tag 2"],
+		];
+
+		$friendWithTooLowFriendship = [
+			'name' => "FriendWithTooLowFriendship",
+			'type' => "NOOB",
+			'friendshipvalue' => -1,
+			'tags' => ["Tag 1", "Tag 2", "Tag 3"],
+		];
+
+		$friendWithWrongTagsType = [
+			'name' => "FriendWithWrongTagsType",
+			'type' => "NOOB",
+			'friendshipvalue' => 35,
+			'tags' => 687,
+		];
+
+		return [
+			[$friendWithAllGood],
+			[$friendWithNoTags],
+			[$friendWithAllNull],
+			[$friendWithAllBlank],
+			[$friendWithoutName],
+			[$friendWithBlankName],
+			[$friendWithWrongNameType],
+			[$friendWithoutType],
+			[$friendWithBlankType],
+			[$friendWithWrongType],
+			[$friendWithWrongTypeType],
+			[$friendWithoutFriendship],
+			[$friendWithWrongFriendshipType],
+			[$friendWithTooHighFriendship],
+			[$friendWithTooLowFriendship],
+			[$friendWithWrongTagsType],
+		];
 	}
 }
