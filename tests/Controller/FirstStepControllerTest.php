@@ -5,12 +5,9 @@ namespace App\Tests\Controller;
 
 
 use App\Document\Friend;
-use App\Exception\FriendshipTooHighException;
-use App\Exception\FriendshipTooLowException;
-use App\Exception\NoFriendshipValueForFriendException;
-use App\Exception\NoNameForFriendException;
-use App\Exception\NoTypeForFriendException;
-use App\Exception\WrongTypeForFriendException;
+use App\Exception\FriendshipOutOfBoundsException;
+use App\Exception\MissingParametersException;
+use App\Exception\InvalidTypeOfFriendException;
 use App\Exception\WrongTypeForParameterException;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Exception;
@@ -107,29 +104,27 @@ class FirstStepControllerTest extends WebTestCase
 
 		//Check errors returned for name
 		if (!array_key_exists('name', $friend) || $friend['name'] === "") {
-			$this->assertContains(NoNameForFriendException::class, $errorTypes);
+			$this->assertContains(MissingParametersException::class, $errorTypes);
 		} else if(!is_string($friend['name'])) {
 			$this->assertContains(WrongTypeForParameterException::class, $errorTypes);
 		}
 
 		//Check errors returned for type
 		if (!array_key_exists('type', $friend) || $friend['type'] === "") {
-			$this->assertContains(NoTypeForFriendException::class, $errorTypes);
+			$this->assertContains(MissingParametersException::class, $errorTypes);
 		} else if(!is_string($friend['type'])) {
 			$this->assertContains(WrongTypeForParameterException::class, $errorTypes);
 		} else if (!in_array($friend['type'], Friend::TYPES)) {
-			$this->assertContains(WrongTypeForFriendException::class, $errorTypes);
+			$this->assertContains(InvalidTypeOfFriendException::class, $errorTypes);
 		}
 
 		//Check errors returned for friendshipvalue
 		if (!array_key_exists('friendshipvalue', $friend)) {
-			$this->assertContains(NoFriendshipValueForFriendException::class, $errorTypes);
+			$this->assertContains(MissingParametersException::class, $errorTypes);
 		} else if(!is_numeric($friend['friendshipvalue'])) {
 			$this->assertContains(WrongTypeForParameterException::class, $errorTypes);
-		} else if ($friend['friendshipvalue'] < 0) {
-			$this->assertContains(FriendshipTooLowException::class, $errorTypes);
-		} else if ($friend['friendshipvalue'] > 100) {
-			$this->assertContains(FriendshipTooHighException::class, $errorTypes);
+		} else if ($friend['friendshipvalue'] < 0 || $friend['friendshipvalue'] > 100) {
+			$this->assertContains(FriendshipOutOfBoundsException::class, $errorTypes);
 		}
 
 		//Check errors returned for tags

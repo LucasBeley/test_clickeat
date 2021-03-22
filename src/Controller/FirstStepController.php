@@ -5,12 +5,9 @@ namespace App\Controller;
 
 
 use App\Document\Friend;
-use App\Exception\FriendshipTooHighException;
-use App\Exception\FriendshipTooLowException;
-use App\Exception\NoFriendshipValueForFriendException;
-use App\Exception\NoNameForFriendException;
-use App\Exception\NoTypeForFriendException;
-use App\Exception\WrongTypeForFriendException;
+use App\Exception\FriendshipOutOfBoundsException;
+use App\Exception\MissingParametersException;
+use App\Exception\InvalidTypeOfFriendException;
 use App\Exception\WrongTypeForParameterException;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ODM\MongoDB\MongoDBException;
@@ -60,30 +57,32 @@ class FirstStepController extends AbstractController
 	{
 		$errors = [];
 
+		//Valid param name
 		if ($name === null || $name === "") {
-			$this->addException(new NoNameForFriendException(), $errors);
+			$this->addException(new MissingParametersException('name'), $errors);
 		} else if (!is_string($name)) {
 			$this->addException(new WrongTypeForParameterException('name', gettype($name), 'string'), $errors);
 		}
 
+		//Valid param type
 		if ($type === null || $type === "") {
-			$this->addException(new NoTypeForFriendException(), $errors);
+			$this->addException(new MissingParametersException('type'), $errors);
 		} else if (!is_string($type)) {
 			$this->addException(new WrongTypeForParameterException('type', gettype($name), 'string'), $errors);
 		} else if (!in_array($type, Friend::TYPES)) {
-			$this->addException(new WrongTypeForFriendException(), $errors);
+			$this->addException(new InvalidTypeOfFriendException($type), $errors);
 		}
 
+		//Valid param friendshipvalue
 		if ($friendshipvalue === null) {
-			$this->addException(new NoFriendshipValueForFriendException(), $errors);
+			$this->addException(new MissingParametersException('friendshipvalue'), $errors);
 		} else if (!is_numeric($friendshipvalue)) {
 			$this->addException(new WrongTypeForParameterException('friendshipvalue', gettype($friendshipvalue), 'integer'), $errors);
-		} else if ($friendshipvalue < 0) {
-			$this->addException(new FriendshipTooLowException(), $errors);
-		} else if ($friendshipvalue > 100) {
-			$this->addException(new FriendshipTooHighException(), $errors);
+		} else if ($friendshipvalue < 0 || $friendshipvalue > 100) {
+			$this->addException(new FriendshipOutOfBoundsException(), $errors);
 		}
 
+		//Valid param tags
 		if ($tags !== null && !is_array($tags)) {
 			$this->addException(new WrongTypeForParameterException('tags', gettype($tags), 'array'), $errors);
 		}
