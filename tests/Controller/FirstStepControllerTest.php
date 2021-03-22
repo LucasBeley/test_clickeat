@@ -23,6 +23,8 @@ class FirstStepControllerTest extends WebTestCase
 {
 	use FixturesTrait;
 
+	const DEFAULT_DOC_MANAGER_SERVICE = 'doctrine_mongodb.odm.default_document_manager';
+
 	private static ?KernelBrowser $client = null;
 
 	/**
@@ -35,7 +37,7 @@ class FirstStepControllerTest extends WebTestCase
 		self::$client = static::createClient();
 
 		$this->documentManager = self::$client->getContainer()
-			->get('doctrine_mongodb.odm.default_document_manager');
+			->get(self::DEFAULT_DOC_MANAGER_SERVICE);
 		$this->mongoDbPurge($this->documentManager);
 	}
 
@@ -44,7 +46,8 @@ class FirstStepControllerTest extends WebTestCase
 	 * @dataProvider provideFriendsWithEveryPropertyGood
 	 * @param array $friend
 	 */
-	public function testCreateFriend(array $friend) {
+	public function testCreateFriend(array $friend)
+	{
 		$serializer = new Serializer([new GetSetMethodNormalizer()], [new JsonEncoder()]);
 		$repo = $this->documentManager->getRepository(Friend::class);
 		$originalSizeDb = count($repo->findAll());
@@ -60,7 +63,7 @@ class FirstStepControllerTest extends WebTestCase
 			/** @var Friend $responseContent */
 			$responseContent = $serializer->deserialize(self::$client->getResponse()->getContent(), Friend::class, 'json');
 			$this->assertInstanceOf(Friend::class, $responseContent);
-		} catch (Exception $exception ) {
+		} catch (Exception $exception) {
 			$this->fail("Unserialization of json to Friend document failed.");
 		}
 
@@ -84,7 +87,8 @@ class FirstStepControllerTest extends WebTestCase
 	 * @dataProvider provideFriendsWithPropertyIssues
 	 * @param array $friend
 	 */
-	public function testCreateFriendWithPropertyIssues(array $friend) {
+	public function testCreateFriendWithPropertyIssues(array $friend)
+	{
 		$repo = $this->documentManager->getRepository(Friend::class);
 		$originalSizeDb = count($repo->findAll());
 
@@ -106,14 +110,14 @@ class FirstStepControllerTest extends WebTestCase
 		//Check errors returned for name
 		if (!array_key_exists('name', $friend) || $friend['name'] === "") {
 			$this->assertContains(MissingParametersException::class, $errorTypes);
-		} else if(!is_string($friend['name'])) {
+		} else if (!is_string($friend['name'])) {
 			$this->assertContains(WrongTypeForParameterException::class, $errorTypes);
 		}
 
 		//Check errors returned for type
 		if (!array_key_exists('type', $friend) || $friend['type'] === "") {
 			$this->assertContains(MissingParametersException::class, $errorTypes);
-		} else if(!is_string($friend['type'])) {
+		} else if (!is_string($friend['type'])) {
 			$this->assertContains(WrongTypeForParameterException::class, $errorTypes);
 		} else if (!in_array($friend['type'], Friend::TYPES)) {
 			$this->assertContains(InvalidTypeOfFriendException::class, $errorTypes);
@@ -122,7 +126,7 @@ class FirstStepControllerTest extends WebTestCase
 		//Check errors returned for friendshipvalue
 		if (!array_key_exists('friendshipvalue', $friend)) {
 			$this->assertContains(MissingParametersException::class, $errorTypes);
-		} else if(!is_numeric($friend['friendshipvalue'])) {
+		} else if (!is_numeric($friend['friendshipvalue'])) {
 			$this->assertContains(WrongTypeForParameterException::class, $errorTypes);
 		} else if ($friend['friendshipvalue'] < 0 || $friend['friendshipvalue'] > 100) {
 			$this->assertContains(FriendshipOutOfBoundsException::class, $errorTypes);
@@ -274,7 +278,9 @@ class FirstStepControllerTest extends WebTestCase
 	public function testListFriends()
 	{
 		$serializer = new Serializer([new GetSetMethodNormalizer()], [new JsonEncoder()]);
-		$this->loadFixtures([FriendsFixture::class], false, 'doctrine_mongodb.odm.default_document_manager');
+		$this->loadFixtures([FriendsFixture::class], false, self::DEFAULT_DOC_MANAGER_SERVICE);
+		$friendRepository = $this->documentManager->getRepository(Friend::class);
+		$nbFriendInserted = count($friendRepository->findAll());
 
 		//Execute request
 		self::$client->request('GET', '/list_friends');
@@ -283,16 +289,34 @@ class FirstStepControllerTest extends WebTestCase
 		$this->assertEquals(200, self::$client->getResponse()->getStatusCode());
 
 		//Returned object is an array of Friend documents
-		try {
-			$responseContent = json_decode(self::$client->getResponse()->getContent());
-			$this->assertIsArray($responseContent);
-			for ($i = 0; $i < count($responseContent); $i++) {
+		$responseContent = json_decode(self::$client->getResponse()->getContent());
+		$this->assertIsArray($responseContent);
+		$this->assertCount($nbFriendInserted, $responseContent);
+		for ($i = 0; $i < count($responseContent); $i++) {
+			try {
 				/** @var Friend $friend */
-				$friend = $serializer->deserialize(self::$client->getResponse()->getContent(), Friend::class, 'json');
+				$friend = $serializer->deserialize(json_encode($responseContent[$i]), Friend::class, 'json');
 				$this->assertInstanceOf(Friend::class, $friend);
+			} catch (Exception $exception) {
+				$this->fail("Unserialization of json to Friend document failed.");
 			}
-		} catch (Exception $exception ) {
-			$this->fail("Unserialization of json to Friend document failed.");
 		}
+	}
+
+	/**
+	 * Test the listings of all friends with no friends inserted
+	 */
+	public function testListFriendWithNoFriendsInserted()
+	{
+		//Execute request
+		self::$client->request('GET', '/list_friends');
+
+		//HTTP response is OK
+		$this->assertEquals(200, self::$client->getResponse()->getStatusCode());
+
+		//Returned object is an array of Friend documents
+		$responseContent = json_decode(self::$client->getResponse()->getContent());
+		$this->assertIsArray($responseContent);
+		$this->assertCount(0, $responseContent);
 	}
 }
