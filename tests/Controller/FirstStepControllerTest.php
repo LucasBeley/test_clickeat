@@ -10,37 +10,14 @@ use App\Exception\FriendshipOutOfBoundsException;
 use App\Exception\MissingParametersException;
 use App\Exception\InvalidTypeOfFriendException;
 use App\Exception\WrongTypeForParameterException;
-use Doctrine\ODM\MongoDB\DocumentManager;
+use App\Tests\TestCase\ControllerTestCase;
 use Exception;
-use Graviton\MongoDB\Fixtures\FixturesTrait;
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\GetSetMethodNormalizer;
 use Symfony\Component\Serializer\Serializer;
 
-class FirstStepControllerTest extends WebTestCase
+class FirstStepControllerTest extends ControllerTestCase
 {
-	use FixturesTrait;
-
-	const DEFAULT_DOC_MANAGER_SERVICE = 'doctrine_mongodb.odm.default_document_manager';
-
-	private static ?KernelBrowser $client = null;
-
-	/**
-	 * @var DocumentManager
-	 */
-	private $documentManager;
-
-	protected function setUp(): void
-	{
-		self::$client = static::createClient();
-
-		$this->documentManager = self::$client->getContainer()
-			->get(self::DEFAULT_DOC_MANAGER_SERVICE);
-		$this->mongoDbPurge($this->documentManager);
-	}
-
 	/**
 	 * Test the creation of a friend that should be OK
 	 * @dataProvider provideFriendsWithEveryPropertyGood
