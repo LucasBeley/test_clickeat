@@ -11,6 +11,7 @@ use App\Exception\NoFriendshipValueForFriendException;
 use App\Exception\NoNameForFriendException;
 use App\Exception\NoTypeForFriendException;
 use App\Exception\WrongTypeForFriendException;
+use App\Exception\WrongTypeForParameterException;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ODM\MongoDB\MongoDBException;
 use Exception;
@@ -22,6 +23,8 @@ use Symfony\Component\Routing\Annotation\Route;
 class FirstStepController extends AbstractController
 {
 	/**
+	 * Add a friend to Poppy, using url params 'name', 'type', 'friendshipvalue' and 'tags'
+	 *
 	 * @Route(name="createFriend", path="/create_friend")
 	 * @param Request $request
 	 * @param DocumentManager $dm
@@ -30,22 +33,12 @@ class FirstStepController extends AbstractController
 	 */
 	public function createFriend(Request $request, DocumentManager $dm): Response
 	{
-		$errors = [];
-		if ($request->get('name') === null) {
-			$this->addException(new NoNameForFriendException(), $errors);
-		}
-		if ($request->get('type') === null) {
-			$this->addException(new NoTypeForFriendException(), $errors);
-		} else if (!in_array($request->get('type'), Friend::TYPES)) {
-			$this->addException(new WrongTypeForFriendException(), $errors);
-		}
-		if ($request->get('friendshipvalue') === null) {
-			$this->addException(new NoFriendshipValueForFriendException(), $errors);
-		} else if ($request->get('friendshipvalue') < 0) {
-			$this->addException(new FriendshipTooLowException(), $errors);
-		} else if ($request->get('friendshipvalue') > 100) {
-			$this->addException(new FriendshipTooHighException(), $errors);
-		}
+		$errors = $this->validateParameters(
+			$request->get('name'),
+			$request->get('type'),
+			$request->get('friendshipvalue'),
+			$request->get('tags')
+		);
 
 		if (empty($errors)) {
 			$friend = new Friend();
@@ -59,7 +52,43 @@ class FirstStepController extends AbstractController
 
 			return $this->json($friend);
 		}
+
 		return $this->json($errors);
+	}
+
+	private function validateParameters($name, $type, $friendshipvalue, $tags): array
+	{
+		$errors = [];
+
+		if ($name === null || $name === "") {
+			$this->addException(new NoNameForFriendException(), $errors);
+		} else if (!is_string($name)) {
+			$this->addException(new WrongTypeForParameterException('name', gettype($name), 'string'), $errors);
+		}
+
+		if ($type === null || $type === "") {
+			$this->addException(new NoTypeForFriendException(), $errors);
+		} else if (!is_string($type)) {
+			$this->addException(new WrongTypeForParameterException('type', gettype($name), 'string'), $errors);
+		} else if (!in_array($type, Friend::TYPES)) {
+			$this->addException(new WrongTypeForFriendException(), $errors);
+		}
+
+		if ($friendshipvalue === null) {
+			$this->addException(new NoFriendshipValueForFriendException(), $errors);
+		} else if (!is_numeric($friendshipvalue)) {
+			$this->addException(new WrongTypeForParameterException('friendshipvalue', gettype($friendshipvalue), 'integer'), $errors);
+		} else if ($friendshipvalue < 0) {
+			$this->addException(new FriendshipTooLowException(), $errors);
+		} else if ($friendshipvalue > 100) {
+			$this->addException(new FriendshipTooHighException(), $errors);
+		}
+
+		if ($tags !== null && !is_array($tags)) {
+			$this->addException(new WrongTypeForParameterException('tags', gettype($tags), 'array'), $errors);
+		}
+
+		return $errors;
 	}
 
 	private function addException(Exception $exception, &$errors) {

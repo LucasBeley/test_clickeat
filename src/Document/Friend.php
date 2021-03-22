@@ -9,7 +9,7 @@ use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
 /**
  * Class Friend
  *
- * @MongoDB\Document(collection="friends", db="test_clickeat")
+ * @MongoDB\Document(collection="friends")
  */
 class Friend
 {
