@@ -276,7 +276,7 @@ class SecondStepControllerTest extends ControllerTestCase
 		//Execute request
 		self::$client->request(
 			'GET',
-			'/change_friendship',
+			'/change_friendship_value',
 			$urlParams
 		);
 

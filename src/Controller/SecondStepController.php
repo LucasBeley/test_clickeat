@@ -26,6 +26,7 @@ class SecondStepController extends AbstractController
 	 * @param DocumentManager $dm
 	 * @return Response
 	 * @throws MongoDBException
+	 * @throws Exception
 	 */
 	public function callTheMonster(Request $request, DocumentManager $dm): Response
 	{
@@ -92,6 +93,33 @@ class SecondStepController extends AbstractController
 		} else {
 			$json = $allEaten;
 		}
+
+		return $this->json($json);
+	}
+
+	/**
+	 * Change friendship value
+	 *
+	 * @Route(name="changeFriendshipValue", path="/change_friendship_value")
+	 * @param Request $request
+	 * @param DocumentManager $dm
+	 * @return Response
+	 * @throws MongoDBException
+	 */
+	public function changeFriendshipValue(Request $request, DocumentManager $dm): Response
+	{
+		$friendRepository = $dm->getRepository(Friend::class);
+		$json = [];
+
+		$id = $request->get(Friend::FIELD_ID);
+		$friendshipValue = $request->get(Friend::FIELD_FRIENDSHIP_VALUE);
+
+		$friend = $friendRepository->find($id);
+		$friend->setFriendshipValue($friendshipValue);
+
+		$dm->flush();
+
+		$json = $friend;
 
 		return $this->json($json);
 	}
