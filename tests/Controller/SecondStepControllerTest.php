@@ -17,17 +17,25 @@ class SecondStepControllerTest extends ControllerTestCase
 	/**
 	 * Test the call of the monster that should be OK
 	 *
-	 * @dataProvider provideLoadFixturesOK
+	 * @dataProvider provideCallTheMonsterOK
+	 * @param array $criteria
 	 */
-	public function testCallTheMonsterOK()
+	public function testCallTheMonsterOK(array $criteria)
 	{
 		$serializer = new Serializer([new GetSetMethodNormalizer()], [new JsonEncoder()]);
 		$this->loadFixtures([FriendsFixture::class], false, self::DEFAULT_DOC_MANAGER_SERVICE);
 		$repo = $this->documentManager->getRepository(Friend::class);
 		$originalSizeDb = count($repo->findAll());
+		if (!empty($criteria)) {
+			$sacrifiedFriend = $repo->findOneBy($criteria);
+		}
 
 		//Execute request
-		self::$client->request('GET', '/call_the_monster');
+		self::$client->request(
+			'GET',
+			'/call_the_monster',
+			$sacrifiedFriend ? ['id' => $sacrifiedFriend->getId()] : null
+		);
 
 		//HTTP response is OK
 		$this->assertEquals(200, self::$client->getResponse()->getStatusCode());
@@ -41,6 +49,9 @@ class SecondStepControllerTest extends ControllerTestCase
 			$this->fail("Unserialization of json to Friend document failed.");
 		}
 		$this->assertNotContains($responseContent->getType(), ['GOD', 'UNICORN']);
+
+		//Check that the good one has been eaten
+		$this->assertSame($sacrifiedFriend, $responseContent);
 
 		$this->assertCount($originalSizeDb - 1, $repo->findAll());
 	}
@@ -75,7 +86,7 @@ class SecondStepControllerTest extends ControllerTestCase
 	/**
 	 * Test the call of the monster that should be KO
 	 *
-	 * @dataProvider provideLoadFixturesKO
+	 * @dataProvider provideCallTheMonsterKO
 	 * @param array $criteria
 	 */
 	public function testCallTheMonsterKO(array $criteria)
@@ -83,9 +94,16 @@ class SecondStepControllerTest extends ControllerTestCase
 		$this->loadFixtures([FriendsFixture::class], false, self::DEFAULT_DOC_MANAGER_SERVICE);
 		$repo = $this->documentManager->getRepository(Friend::class);
 		$originalSizeDb = count($repo->findAll());
+		if (!empty($criteria)) {
+			$sacrifiedFriend = $repo->findOneBy($criteria);
+		}
 
 		//Execute request
-		self::$client->request('GET', '/call_the_monster');
+		self::$client->request(
+			'GET',
+			'/call_the_monster',
+			$sacrifiedFriend ? ['id' => $sacrifiedFriend->getId()] : null
+		);
 
 		//HTTP response is OK
 		$this->assertEquals(200, self::$client->getResponse()->getStatusCode());
@@ -106,7 +124,7 @@ class SecondStepControllerTest extends ControllerTestCase
 		$this->assertCount($originalSizeDb, $repo->findAll());
 	}
 
-	public function provideLoadFixturesOK(): array
+	public function provideCallTheMonsterOK(): array
 	{
 		$noCriteria = [];
 		$hoomanType = [
@@ -115,30 +133,22 @@ class SecondStepControllerTest extends ControllerTestCase
 		$noobType = [
 			Friend::FIELD_TYPE => "NOOB",
 		];
-		$unicornType = [
-			Friend::FIELD_TYPE => "UNICORN",
-		];
 
 		return [
 			[$noCriteria],
 			[$hoomanType],
 			[$noobType],
-			[$unicornType],
 		];
 	}
 
-	public function provideLoadFixturesKO(): array
+	public function provideCallTheMonsterKO(): array
 	{
 		$godType = [
 			Friend::FIELD_TYPE => "GOD",
 		];
-		$unicornType = [
-			Friend::FIELD_TYPE => "UNICORN",
-		];
 
 		return [
-			[$godType],
-			[$unicornType],
+			[$godType]
 		];
 	}
 }
