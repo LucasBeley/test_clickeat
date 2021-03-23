@@ -52,6 +52,12 @@ class Friend
 	private $tags;
 
 	/**
+	 * @MongoDB\Field(type="boolean")
+	 * @var null|bool
+	 */
+	private $eaten;
+
+	/**
 	 * @return string|null
 	 */
 	public function getId(): ?string
@@ -129,5 +135,21 @@ class Friend
 	public function setTags(?array $tags): void
 	{
 		$this->tags = $tags;
+	}
+
+	/**
+	 * @return bool|null
+	 */
+	public function getEaten(): ?bool
+	{
+		return $this->eaten;
+	}
+
+	/**
+	 * @param bool|null $eaten
+	 */
+	public function setEaten(?bool $eaten): void
+	{
+		$this->eaten = $eaten;
 	}
 }

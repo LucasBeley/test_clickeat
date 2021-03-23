@@ -63,6 +63,14 @@ class FriendsFixture extends Fixture implements FixtureInterface
 		$unicornFriend->setTags(null);
 		$manager->persist($unicornFriend);
 
+		$eatenFriend = new Friend();
+		$eatenFriend->setName("EatenFriend");
+		$eatenFriend->setType("NOOB");
+		$eatenFriend->setFriendshipValue(78);
+		$eatenFriend->setTags(null);
+		$eatenFriend->setEaten(true);
+		$manager->persist($eatenFriend);
+
 		$manager->flush();
 	}
 }

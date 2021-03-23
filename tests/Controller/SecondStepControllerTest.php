@@ -100,7 +100,6 @@ class SecondStepControllerTest extends ControllerTestCase
 		$repo = $this->documentManager->getRepository(Friend::class);
 		$originalSizeDb = count($repo->findAll());
 		$sacrifiedFriend = $repo->findOneBy($criteria);
-		echo $sacrifiedFriend->getType();
 
 		//Execute request
 		self::$client->request(
@@ -114,7 +113,7 @@ class SecondStepControllerTest extends ControllerTestCase
 
 		$responseContent = json_decode(self::$client->getResponse()->getContent(), true);
 
-		//There should be an error
+		//There should be a specific return
 		$this->assertArrayHasKey('Unicorn power !!', $responseContent, array_keys($responseContent)[0]);
 
 		$this->assertCount($originalSizeDb, $repo->findAll());
@@ -198,5 +197,42 @@ class SecondStepControllerTest extends ControllerTestCase
 		return [
 			[$godType]
 		];
+	}
+
+	/**
+	 * Test the listing of eaten friends
+	 */
+	public function testListEaten()
+	{
+		$serializer = new Serializer([new GetSetMethodNormalizer()], [new JsonEncoder()]);
+		$this->loadFixtures([FriendsFixture::class], false, self::DEFAULT_DOC_MANAGER_SERVICE);
+		$repo = $this->documentManager->getRepository(Friend::class);
+		$originalSizeDb = count($repo->findAll());
+		$nbEaten = count($repo->findBy(['eaten' => true]));
+
+		//Execute request
+		self::$client->request('GET', '/list_eaten');
+
+		//HTTP response is OK
+		$this->assertEquals(200, self::$client->getResponse()->getStatusCode());
+
+		//Returned object is an array of Friend documents
+		$responseContent = json_decode(self::$client->getResponse()->getContent());
+		$this->assertIsArray($responseContent);
+		$this->assertCount($nbEaten, $responseContent);
+		for ($i = 0; $i < count($responseContent); $i++) {
+			try {
+				/** @var Friend $friend */
+				$friend = $serializer->deserialize(json_encode($responseContent[$i]), Friend::class, 'json');
+				$this->assertInstanceOf(Friend::class, $friend);
+				$this->assertTrue($friend->getEaten());
+				$this->assertNotContains($friend->getType(), ['GOD', 'UNICORN']);
+			} catch (Exception $exception) {
+				$this->fail("Unserialization of json to Friend document failed.");
+			}
+		}
+
+		//Size of the collection should not change
+		$this->assertCount($originalSizeDb, $repo->findAll());
 	}
 }
