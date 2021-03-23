@@ -2,6 +2,7 @@
 
 namespace App\Tests\Controller;
 
+use App\DataFixture\FriendsFixture;
 use App\Document\Friend;
 use App\Tests\TestCase\ControllerTestCase;
 use Exception;
@@ -13,10 +14,13 @@ class SecondStepControllerTest extends ControllerTestCase
 {
 	/**
 	 * Test the call of the monster that should be OK
+	 *
+	 * TODO Test if DB is empty
 	 */
 	public function testCallTheMonster()
 	{
 		$serializer = new Serializer([new GetSetMethodNormalizer()], [new JsonEncoder()]);
+		$this->loadFixtures([FriendsFixture::class], false, self::DEFAULT_DOC_MANAGER_SERVICE);
 		$repo = $this->documentManager->getRepository(Friend::class);
 		$originalSizeDb = count($repo->findAll());
 

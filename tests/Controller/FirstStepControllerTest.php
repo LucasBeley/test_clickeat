@@ -377,13 +377,6 @@ class FirstStepControllerTest extends ControllerTestCase
 			Friend::FIELD_TAGS => ["Tag 1", "Tag 3"],
 		];
 
-		$friendWithWrongNameType = [
-			Friend::FIELD_NAME => [],
-			Friend::FIELD_TYPE => "GOD",
-			Friend::FIELD_FRIENDSHIP_VALUE => 43,
-			Friend::FIELD_TAGS => ["Tag 1"],
-		];
-
 		$friendWithoutType = [
 			Friend::FIELD_NAME => "FriendWithoutType",
 			Friend::FIELD_FRIENDSHIP_VALUE => 99,
@@ -393,13 +386,6 @@ class FirstStepControllerTest extends ControllerTestCase
 		$friendWithWrongType = [
 			Friend::FIELD_NAME => "FriendWithWrongType",
 			Friend::FIELD_TYPE => "WRONGTYPE",
-			Friend::FIELD_FRIENDSHIP_VALUE => 45,
-			Friend::FIELD_TAGS => ["Tag 3"],
-		];
-
-		$friendWithWrongTypeType = [
-			Friend::FIELD_NAME => "FriendWithWrongTypeType",
-			Friend::FIELD_TYPE => [],
 			Friend::FIELD_FRIENDSHIP_VALUE => 45,
 			Friend::FIELD_TAGS => ["Tag 3"],
 		];
@@ -443,10 +429,8 @@ class FirstStepControllerTest extends ControllerTestCase
 			[$friendWithNoTags],
 			[$friendWithAllNull],
 			[$friendWithoutName],
-			[$friendWithWrongNameType],
 			[$friendWithoutType],
 			[$friendWithWrongType],
-			[$friendWithWrongTypeType],
 			[$friendWithoutFriendship],
 			[$friendWithWrongFriendshipType],
 			[$friendWithTooHighFriendship],
