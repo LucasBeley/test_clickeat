@@ -64,7 +64,7 @@ class SecondStepController extends AbstractController
 					$json["unicornPower"] = "Unicorn's are eternal, they always survive the monster.";
 					break;
 				default:
-					$dm->remove($eaten);
+					$eaten->setEaten(true);
 					$dm->flush();
 					$json = $eaten;
 					break;
@@ -87,7 +87,11 @@ class SecondStepController extends AbstractController
 		$json = [];
 
 		$allEaten = $friendRepository->findBy([Friend::FIELD_EATEN => true]);
-		$json = $allEaten;
+		if (count($allEaten) === 0) {
+			$json['emptyStomach'] = "No one has been eaten .... yet !";
+		} else {
+			$json = $allEaten;
+		}
 
 		return $this->json($json);
 	}

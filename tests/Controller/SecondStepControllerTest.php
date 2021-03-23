@@ -46,6 +46,7 @@ class SecondStepControllerTest extends ControllerTestCase
 			/** @var Friend $responseContent */
 			$responseContent = $serializer->deserialize(self::$client->getResponse()->getContent(), Friend::class, 'json');
 			$this->assertInstanceOf(Friend::class, $responseContent);
+			$this->assertTrue($responseContent->getEaten());
 		} catch (Exception $exception) {
 			$this->fail("Unserialization of json to Friend document failed.");
 		}
@@ -56,7 +57,7 @@ class SecondStepControllerTest extends ControllerTestCase
 			$this->assertEquals($sacrifiedFriend->getId(), $responseContent->getId());
 		}
 
-		$this->assertCount($originalSizeDb - 1, $repo->findAll());
+		$this->assertCount($originalSizeDb, $repo->findAll());
 	}
 
 	/**
@@ -250,7 +251,7 @@ class SecondStepControllerTest extends ControllerTestCase
 		$this->assertEquals(200, self::$client->getResponse()->getStatusCode());
 
 		//Returned object is an array of Friend documents
-		$responseContent = json_decode(self::$client->getResponse()->getContent());
+		$responseContent = json_decode(self::$client->getResponse()->getContent(), true);
 		$this->assertArrayHasKey("emptyStomach", $responseContent);
 
 		//Size of the collection should not change and should be 0
