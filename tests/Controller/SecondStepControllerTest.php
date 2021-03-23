@@ -5,7 +5,10 @@ namespace App\Tests\Controller;
 use App\DataFixture\FriendsFixture;
 use App\Document\Friend;
 use App\Exception\EmptyDBException;
+use App\Exception\FriendshipOutOfBoundsException;
 use App\Exception\GodDoesNotAcceptException;
+use App\Exception\MissingParametersException;
+use App\Exception\WrongTypeForParameterException;
 use App\Tests\TestCase\ControllerTestCase;
 use Exception;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
@@ -261,14 +264,13 @@ class SecondStepControllerTest extends ControllerTestCase
 	/**
 	 * Test changing a friendship value
 	 */
-	public function testChangeFriendship()
+	public function testChangeFriendshipValue()
 	{
 		$serializer = new Serializer([new GetSetMethodNormalizer()], [new JsonEncoder()]);
 		$this->loadFixtures([FriendsFixture::class], false, self::DEFAULT_DOC_MANAGER_SERVICE);
 		$repo = $this->documentManager->getRepository(Friend::class);
 		$originalSizeDb = count($repo->findAll());
 		$chosen = $repo->findOneBy([Friend::FIELD_TYPE => 'HOOMAN']);
-		$initialFriendshipValue = $chosen->getFriendshipValue();
 		$chosenFriendshipValue = 57;
 		$urlParams[Friend::FIELD_ID] = $chosen->getId();
 		$urlParams[Friend::FIELD_FRIENDSHIP_VALUE] = $chosenFriendshipValue;
@@ -296,5 +298,81 @@ class SecondStepControllerTest extends ControllerTestCase
 
 		//Size of the collection should not change
 		$this->assertCount($originalSizeDb, $repo->findAll());
+	}
+
+	/**
+	 * Test changing a friendship value that should be KO
+	 *
+	 * @dataProvider provideChangeFriendshipValueKO
+	 * @param $friendshipValue
+	 * @param array $criteria
+	 */
+	public function testChangeFriendshipValueKO($friendshipValue, array $criteria)
+	{
+		$this->loadFixtures([FriendsFixture::class], false, self::DEFAULT_DOC_MANAGER_SERVICE);
+		$repo = $this->documentManager->getRepository(Friend::class);
+		$originalSizeDb = count($repo->findAll());
+		$chosen = $repo->findOneBy($criteria);
+		$chosenFriendshipValue = $friendshipValue;
+		$urlParams[Friend::FIELD_ID] = $chosen->getId();
+		$urlParams[Friend::FIELD_FRIENDSHIP_VALUE] = $chosenFriendshipValue;
+
+		//Execute request
+		self::$client->request(
+			'GET',
+			'/change_friendship_value',
+			$urlParams
+		);
+
+		//HTTP response is OK
+		$this->assertEquals(200, self::$client->getResponse()->getStatusCode());
+
+		$responseContent = json_decode(self::$client->getResponse()->getContent(), true);
+
+		//There should be an error
+		$this->assertArrayHasKey('errors', $responseContent);
+
+		//Map types of error in an array to simplify the check
+		$errorTypes = array_map(function ($element) {
+			return $element['exception'];
+		}, $responseContent['errors']);
+
+		//Check errors returned for friendshipValue
+		if ($friendshipValue === null) {
+			$this->assertContains(MissingParametersException::class, $errorTypes);
+		} else if (!is_numeric($friendshipValue)) {
+			$this->assertContains(WrongTypeForParameterException::class, $errorTypes);
+		} else if ($friendshipValue < 0 || $friendshipValue > 100) {
+			$this->assertContains(FriendshipOutOfBoundsException::class, $errorTypes);
+		}
+
+		//Size of the collection should not change
+		$this->assertCount($originalSizeDb, $repo->findAll());
+	}
+
+	public function provideChangeFriendshipValueKO(): array
+	{
+		$nullFriendshipValue = [
+			null,
+			[Friend::FIELD_TYPE => 'HOOMAN']
+		];
+		$nonNumericalFriendshipValue = [
+			"friendshipValue",
+			[Friend::FIELD_TYPE => 'HOOMAN']
+		];
+		$tooHighFriendshipValue = [
+			150,
+			[Friend::FIELD_TYPE => 'HOOMAN']
+		];
+		$tooLowFriendshipValue = [
+			-1,
+			[Friend::FIELD_TYPE => 'HOOMAN']
+		];
+
+		return [
+			$nonNumericalFriendshipValue,
+			$tooHighFriendshipValue,
+			$tooLowFriendshipValue
+		];
 	}
 }
