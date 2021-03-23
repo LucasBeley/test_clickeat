@@ -60,7 +60,7 @@ class FriendsFixture extends Fixture implements FixtureInterface
 		$unicornFriend->setName("UnicornFriend");
 		$unicornFriend->setType("UNICORN");
 		$unicornFriend->setFriendshipValue(0);
-		$unicornFriend->setTags();
+		$unicornFriend->setTags(null);
 		$manager->persist($unicornFriend);
 
 		$manager->flush();
