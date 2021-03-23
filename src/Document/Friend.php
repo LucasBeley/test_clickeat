@@ -18,6 +18,7 @@ class Friend
 	const FIELD_TYPE = "type";
 	const FIELD_FRIENDSHIP_VALUE = "friendshipValue";
 	const FIELD_TAGS = "tags";
+	const FIELD_EATEN = "eaten";
 
 	const TYPES = ['HOOMAN', 'NOOB', 'UNICORN', 'GOD'];
 

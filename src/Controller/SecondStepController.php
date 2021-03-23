@@ -22,10 +22,10 @@ class SecondStepController extends AbstractController
 	 * Call the monster that will eat a friend
 	 *
 	 * @Route(name="callTheMonster", path="/call_the_monster")
+	 * @param Request $request
 	 * @param DocumentManager $dm
 	 * @return Response
 	 * @throws MongoDBException
-	 * @throws Exception
 	 */
 	public function callTheMonster(Request $request, DocumentManager $dm): Response
 	{
@@ -70,6 +70,25 @@ class SecondStepController extends AbstractController
 					break;
 			}
 		}
+		return $this->json($json);
+	}
+
+	/**
+	 * List all eaten friends
+	 *
+	 * @Route(name="listEaten", path="/list_eaten")
+	 * @param Request $request
+	 * @param DocumentManager $dm
+	 * @return Response
+	 */
+	public function listEaten(Request $request, DocumentManager $dm): Response
+	{
+		$friendRepository = $dm->getRepository(Friend::class);
+		$json = [];
+
+		$allEaten = $friendRepository->findBy([Friend::FIELD_EATEN => true]);
+		$json = $allEaten;
+
 		return $this->json($json);
 	}
 
