@@ -257,4 +257,44 @@ class SecondStepControllerTest extends ControllerTestCase
 		//Size of the collection should not change and should be 0
 		$this->assertCount(0, $repo->findAll());
 	}
+
+	/**
+	 * Test changing a friendship value
+	 */
+	public function testChangeFriendship()
+	{
+		$serializer = new Serializer([new GetSetMethodNormalizer()], [new JsonEncoder()]);
+		$this->loadFixtures([FriendsFixture::class], false, self::DEFAULT_DOC_MANAGER_SERVICE);
+		$repo = $this->documentManager->getRepository(Friend::class);
+		$originalSizeDb = count($repo->findAll());
+		$chosen = $repo->findOneBy([Friend::FIELD_TYPE => 'HOOMAN']);
+		$initialFriendshipValue = $chosen->getFriendshipValue();
+		$chosenFriendshipValue = 57;
+		$urlParams[Friend::FIELD_ID] = $chosen->getId();
+		$urlParams[Friend::FIELD_FRIENDSHIP_VALUE] = $chosenFriendshipValue;
+
+		//Execute request
+		self::$client->request(
+			'GET',
+			'/change_friendship',
+			$urlParams
+		);
+
+		//HTTP response is OK
+		$this->assertEquals(200, self::$client->getResponse()->getStatusCode());
+
+		//Returned object can be unserialized in a Friend document
+		try {
+			/** @var Friend $responseContent */
+			$responseContent = $serializer->deserialize(self::$client->getResponse()->getContent(), Friend::class, 'json');
+			$this->assertInstanceOf(Friend::class, $responseContent);
+			$this->assertEquals($chosenFriendshipValue, $responseContent->getFriendshipValue());
+		} catch (Exception $exception) {
+			$this->fail("Unserialization of json to Friend document failed.");
+		}
+		$this->assertNotEquals('GOD', $responseContent->getType());
+
+		//Size of the collection should not change
+		$this->assertCount($originalSizeDb, $repo->findAll());
+	}
 }
