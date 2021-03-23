@@ -84,7 +84,7 @@ class SecondStepController extends AbstractController
 	 * @param DocumentManager $dm
 	 * @return Response
 	 */
-	public function listEaten(Request $request, DocumentManager $dm): Response
+	public function listEaten(DocumentManager $dm): Response
 	{
 		$friendRepository = $dm->getRepository(Friend::class);
 		$json = [];
