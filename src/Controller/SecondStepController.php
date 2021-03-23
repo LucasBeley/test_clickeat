@@ -6,7 +6,9 @@ namespace App\Controller;
 
 use App\Document\Friend;
 use App\Exception\EmptyDBException;
+use App\Exception\FriendshipOutOfBoundsException;
 use App\Exception\GodDoesNotAcceptException;
+use App\Exception\MissingParametersException;
 use App\Exception\WrongTypeForParameterException;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ODM\MongoDB\MongoDBException;
@@ -114,12 +116,23 @@ class SecondStepController extends AbstractController
 		$id = $request->get(Friend::FIELD_ID);
 		$friendshipValue = $request->get(Friend::FIELD_FRIENDSHIP_VALUE);
 
-		$friend = $friendRepository->find($id);
-		$friend->setFriendshipValue($friendshipValue);
+		//Valid param friendshipValue
+		if ($friendshipValue === null) {
+			$this->addException(new MissingParametersException(Friend::FIELD_FRIENDSHIP_VALUE), $json);
+		} else if (!is_numeric($friendshipValue)) {
+			$this->addException(new WrongTypeForParameterException(Friend::FIELD_FRIENDSHIP_VALUE, gettype($friendshipValue), 'integer'), $json);
+		} else if ($friendshipValue < 0 || $friendshipValue > 100) {
+			$this->addException(new FriendshipOutOfBoundsException(), $json);
+		}
 
-		$dm->flush();
+		if(empty($json)) {
+			$friend = $friendRepository->find($id);
+			$friend->setFriendshipValue($friendshipValue);
 
-		$json = $friend;
+			$dm->flush();
+
+			$json = $friend;
+		}
 
 		return $this->json($json);
 	}
