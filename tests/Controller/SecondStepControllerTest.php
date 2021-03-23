@@ -26,6 +26,7 @@ class SecondStepControllerTest extends ControllerTestCase
 		$this->loadFixtures([FriendsFixture::class], false, self::DEFAULT_DOC_MANAGER_SERVICE);
 		$repo = $this->documentManager->getRepository(Friend::class);
 		$originalSizeDb = count($repo->findAll());
+		$sacrifiedFriend = null;
 		if (!empty($criteria)) {
 			$sacrifiedFriend = $repo->findOneBy($criteria);
 		}
@@ -34,7 +35,7 @@ class SecondStepControllerTest extends ControllerTestCase
 		self::$client->request(
 			'GET',
 			'/call_the_monster',
-			$sacrifiedFriend ? ['id' => $sacrifiedFriend->getId()] : null
+			$sacrifiedFriend ? ['id' => $sacrifiedFriend->getId()] : []
 		);
 
 		//HTTP response is OK
@@ -94,6 +95,7 @@ class SecondStepControllerTest extends ControllerTestCase
 		$this->loadFixtures([FriendsFixture::class], false, self::DEFAULT_DOC_MANAGER_SERVICE);
 		$repo = $this->documentManager->getRepository(Friend::class);
 		$originalSizeDb = count($repo->findAll());
+		$sacrifiedFriend = null;
 		if (!empty($criteria)) {
 			$sacrifiedFriend = $repo->findOneBy($criteria);
 		}
@@ -102,7 +104,7 @@ class SecondStepControllerTest extends ControllerTestCase
 		self::$client->request(
 			'GET',
 			'/call_the_monster',
-			$sacrifiedFriend ? ['id' => $sacrifiedFriend->getId()] : null
+			$sacrifiedFriend ? ['id' => $sacrifiedFriend->getId()] : []
 		);
 
 		//HTTP response is OK

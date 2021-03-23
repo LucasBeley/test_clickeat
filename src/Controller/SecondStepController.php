@@ -5,6 +5,7 @@ namespace App\Controller;
 
 
 use App\Document\Friend;
+use App\Exception\EmptyDBException;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ODM\MongoDB\MongoDBException;
 use Exception;
@@ -25,13 +26,31 @@ class SecondStepController extends AbstractController
 	 */
 	public function callTheMonster(DocumentManager $dm): Response
 	{
-		$builder = $dm->createAggregationBuilder(Friend::class);
-		$builder->hydrate(Friend::class);
-		$builder->sample(1);
-		$eaten = $builder->getAggregation()->getIterator()->current();
-		$dm->remove($eaten);
-		$dm->flush();
+		$friendRepository = $dm->getRepository(Friend::class);
+		$errors = [];
+		if (count($friendRepository->findAll()) === 0) {
+			$this->addException(new EmptyDBException(), $errors);
+		}
 
-		return $this->json($eaten);
+		if (empty($errors)) {
+			$builder = $dm->createAggregationBuilder(Friend::class);
+			$builder->hydrate(Friend::class);
+			$builder->sample(1);
+			$eaten = $builder->getAggregation()->getIterator()->current();
+			$dm->remove($eaten);
+			$dm->flush();
+
+			return $this->json($eaten);
+		}
+
+		return $this->json($errors);
+	}
+
+	private function addException(Exception $exception, &$errors)
+	{
+		$errors['errors'][] = [
+			"exception" => get_class($exception),
+			"message" => $exception->getMessage()
+		];
 	}
 }
