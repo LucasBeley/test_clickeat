@@ -51,8 +51,10 @@ class SecondStepControllerTest extends ControllerTestCase
 		}
 		$this->assertNotContains($responseContent->getType(), ['GOD', 'UNICORN']);
 
-		//Check that the good one has been eaten
-		$this->assertSame($sacrifiedFriend, $responseContent);
+		if ($sacrifiedFriend !== null) {
+			//Check that the good one has been eaten
+			$this->assertEquals($sacrifiedFriend->getId(), $responseContent->getId());
+		}
 
 		$this->assertCount($originalSizeDb - 1, $repo->findAll());
 	}
@@ -75,6 +77,7 @@ class SecondStepControllerTest extends ControllerTestCase
 		//There should be an error
 		$this->assertArrayHasKey('errors', $responseContent);
 
+		//Map types of error in an array to simplify the check
 		$errorTypes = array_map(function ($element) {
 			return $element['exception'];
 		}, $responseContent['errors']);
@@ -82,6 +85,39 @@ class SecondStepControllerTest extends ControllerTestCase
 		$this->assertContains(EmptyDBException::class, $errorTypes);
 
 		$this->assertCount(0, $repo->findAll());
+	}
+
+
+	/**
+	 * Test the call of the monster with a Unicorn
+	 *
+	 * @dataProvider provideCallTheMonsterUnicorn
+	 * @param array $criteria
+	 */
+	public function testCallTheMonsterUnicorn(array $criteria)
+	{
+		$this->loadFixtures([FriendsFixture::class], false, self::DEFAULT_DOC_MANAGER_SERVICE);
+		$repo = $this->documentManager->getRepository(Friend::class);
+		$originalSizeDb = count($repo->findAll());
+		$sacrifiedFriend = $repo->findOneBy($criteria);
+		echo $sacrifiedFriend->getType();
+
+		//Execute request
+		self::$client->request(
+			'GET',
+			'/call_the_monster',
+			['id' => $sacrifiedFriend->getId()]
+		);
+
+		//HTTP response is OK
+		$this->assertEquals(200, self::$client->getResponse()->getStatusCode());
+
+		$responseContent = json_decode(self::$client->getResponse()->getContent(), true);
+
+		//There should be an error
+		$this->assertArrayHasKey('Unicorn power !!', $responseContent, array_keys($responseContent)[0]);
+
+		$this->assertCount($originalSizeDb, $repo->findAll());
 	}
 
 	/**
@@ -115,6 +151,7 @@ class SecondStepControllerTest extends ControllerTestCase
 		//There should be an error
 		$this->assertArrayHasKey('errors', $responseContent);
 
+		//Map types of error in an array to simplify the check
 		$errorTypes = array_map(function ($element) {
 			return $element['exception'];
 		}, $responseContent['errors']);
@@ -128,7 +165,6 @@ class SecondStepControllerTest extends ControllerTestCase
 
 	public function provideCallTheMonsterOK(): array
 	{
-		$noCriteria = [];
 		$hoomanType = [
 			Friend::FIELD_TYPE => "HOOMAN",
 		];
@@ -137,9 +173,19 @@ class SecondStepControllerTest extends ControllerTestCase
 		];
 
 		return [
-			[$noCriteria],
 			[$hoomanType],
 			[$noobType],
+		];
+	}
+
+	public function provideCallTheMonsterUnicorn(): array
+	{
+		$unicornType = [
+			Friend::FIELD_TYPE => "UNICORN",
+		];
+
+		return [
+			[$unicornType]
 		];
 	}
 

@@ -80,6 +80,7 @@ class FirstStepControllerTest extends ControllerTestCase
 		//There should be at least an error
 		$this->assertArrayHasKey('errors', $responseContent);
 
+		//Map types of error in an array to simplify the check
 		$errorTypes = array_map(function ($element) {
 			return $element['exception'];
 		}, $responseContent['errors']);
@@ -347,7 +348,7 @@ class FirstStepControllerTest extends ControllerTestCase
 			}
 			if (array_key_exists(Friend::FIELD_TAGS, $criteria)) {
 				foreach ($criteria[Friend::FIELD_TAGS] as $tag) {
-					$this->assertContains($tag, $friendAsserted->getType());
+					$this->assertContains($tag, $friendAsserted->getTags());
 				}
 			}
 		}
