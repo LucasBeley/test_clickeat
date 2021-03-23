@@ -114,7 +114,7 @@ class SecondStepControllerTest extends ControllerTestCase
 		$responseContent = json_decode(self::$client->getResponse()->getContent(), true);
 
 		//There should be a specific return
-		$this->assertArrayHasKey('Unicorn power !!', $responseContent, array_keys($responseContent)[0]);
+		$this->assertArrayHasKey('unicornPower', $responseContent, array_keys($responseContent)[0]);
 
 		$this->assertCount($originalSizeDb, $repo->findAll());
 	}
@@ -208,7 +208,7 @@ class SecondStepControllerTest extends ControllerTestCase
 		$this->loadFixtures([FriendsFixture::class], false, self::DEFAULT_DOC_MANAGER_SERVICE);
 		$repo = $this->documentManager->getRepository(Friend::class);
 		$originalSizeDb = count($repo->findAll());
-		$nbEaten = count($repo->findBy(['eaten' => true]));
+		$nbEaten = count($repo->findBy([Friend::FIELD_EATEN => true]));
 
 		//Execute request
 		self::$client->request('GET', '/list_eaten');
@@ -234,5 +234,26 @@ class SecondStepControllerTest extends ControllerTestCase
 
 		//Size of the collection should not change
 		$this->assertCount($originalSizeDb, $repo->findAll());
+	}
+
+	/**
+	 * Test the listing of eaten friends with empty DB
+	 */
+	public function testListEatenEmptyDB()
+	{
+		$repo = $this->documentManager->getRepository(Friend::class);
+
+		//Execute request
+		self::$client->request('GET', '/list_eaten');
+
+		//HTTP response is OK
+		$this->assertEquals(200, self::$client->getResponse()->getStatusCode());
+
+		//Returned object is an array of Friend documents
+		$responseContent = json_decode(self::$client->getResponse()->getContent());
+		$this->assertArrayHasKey("emptyStomach", $responseContent);
+
+		//Size of the collection should not change and should be 0
+		$this->assertCount(0, $repo->findAll());
 	}
 }

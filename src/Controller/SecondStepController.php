@@ -61,7 +61,7 @@ class SecondStepController extends AbstractController
 					$this->addException(new GodDoesNotAcceptException(), $json);
 					break;
 				case "UNICORN":
-					$json["Unicorn power !!"] = "Unicorn's are eternal, they always survive the monster.";
+					$json["unicornPower"] = "Unicorn's are eternal, they always survive the monster.";
 					break;
 				default:
 					$dm->remove($eaten);
