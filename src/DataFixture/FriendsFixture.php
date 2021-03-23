@@ -34,6 +34,35 @@ class FriendsFixture extends Fixture implements FixtureInterface
 
 			$manager->persist($friend);
 		}
+
+		$godFriend = new Friend();
+		$godFriend->setName("GodFriend");
+		$godFriend->setType("GOD");
+		$godFriend->setFriendshipValue(56);
+		$godFriend->setTags(["Tag 51", "Tag 10"]);
+		$manager->persist($godFriend);
+
+		$hoomanFriend = new Friend();
+		$hoomanFriend->setName("HoomanFriend");
+		$hoomanFriend->setType("HOOMAN");
+		$hoomanFriend->setFriendshipValue(64);
+		$hoomanFriend->setTags(["Tag 1", "Tag 2", "Tag 3"]);
+		$manager->persist($hoomanFriend);
+
+		$noobFriend = new Friend();
+		$noobFriend->setName("NoobFriend");
+		$noobFriend->setType("NOOB");
+		$noobFriend->setFriendshipValue(100);
+		$noobFriend->setTags(["Tag 1", "Tag 2"]);
+		$manager->persist($noobFriend);
+
+		$unicornFriend = new Friend();
+		$unicornFriend->setName("UnicornFriend");
+		$unicornFriend->setType("UNICORN");
+		$unicornFriend->setFriendshipValue(0);
+		$unicornFriend->setTags();
+		$manager->persist($unicornFriend);
+
 		$manager->flush();
 	}
 }
