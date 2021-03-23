@@ -159,7 +159,7 @@ class SecondStepControllerTest extends ControllerTestCase
 			return $element['exception'];
 		}, $responseContent['errors']);
 
-		if (!array_key_exists(Friend::FIELD_TYPE, $criteria) && $criteria[Friend::FIELD_TYPE] === "GOD") {
+		if (array_key_exists(Friend::FIELD_TYPE, $criteria) && $criteria[Friend::FIELD_TYPE] === "GOD") {
 			$this->assertContains(GodDoesNotAcceptException::class, $errorTypes);
 		}
 
@@ -312,9 +312,12 @@ class SecondStepControllerTest extends ControllerTestCase
 		$this->loadFixtures([FriendsFixture::class], false, self::DEFAULT_DOC_MANAGER_SERVICE);
 		$repo = $this->documentManager->getRepository(Friend::class);
 		$originalSizeDb = count($repo->findAll());
-		$chosen = $repo->findOneBy($criteria);
+		$chosen = null;
+		if (!array_key_exists(Friend::FIELD_ID, $criteria)) {
+			$chosen = $repo->findOneBy($criteria);
+		}
 		$chosenFriendshipValue = $friendshipValue;
-		$urlParams[Friend::FIELD_ID] = $chosen->getId();
+		$urlParams[Friend::FIELD_ID] = $chosen ? $chosen->getId() : null;
 		$urlParams[Friend::FIELD_FRIENDSHIP_VALUE] = $chosenFriendshipValue;
 
 		//Execute request
@@ -338,6 +341,11 @@ class SecondStepControllerTest extends ControllerTestCase
 		}, $responseContent['errors']);
 
 		//Check errors returned for friendshipValue
+		if (array_key_exists(Friend::FIELD_ID, $criteria) && $criteria[Friend::FIELD_ID] === null) {
+			$this->assertContains(MissingParametersException::class, $errorTypes);
+		}
+
+		//Check errors returned for friendshipValue
 		if ($friendshipValue === null) {
 			$this->assertContains(MissingParametersException::class, $errorTypes);
 		} else if (!is_numeric($friendshipValue)) {
@@ -346,12 +354,25 @@ class SecondStepControllerTest extends ControllerTestCase
 			$this->assertContains(FriendshipOutOfBoundsException::class, $errorTypes);
 		}
 
+		//Check errors for GOD
+		if (array_key_exists(Friend::FIELD_TYPE, $criteria) && $criteria[Friend::FIELD_TYPE] === "GOD") {
+			$this->assertContains(GodDoesNotAcceptException::class, $errorTypes);
+		}
+
 		//Size of the collection should not change
 		$this->assertCount($originalSizeDb, $repo->findAll());
 	}
 
 	public function provideChangeFriendshipValueKO(): array
 	{
+		$allNull = [
+			null,
+			[Friend::FIELD_ID => null]
+		];
+		$nullId = [
+			78,
+			[Friend::FIELD_ID => null]
+		];
 		$nullFriendshipValue = [
 			null,
 			[Friend::FIELD_TYPE => 'HOOMAN']
@@ -370,6 +391,9 @@ class SecondStepControllerTest extends ControllerTestCase
 		];
 
 		return [
+			$allNull,
+			$nullId,
+			$nullFriendshipValue,
 			$nonNumericalFriendshipValue,
 			$tooHighFriendshipValue,
 			$tooLowFriendshipValue

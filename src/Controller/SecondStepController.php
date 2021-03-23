@@ -116,8 +116,13 @@ class SecondStepController extends AbstractController
 		$id = $request->get(Friend::FIELD_ID);
 		$friendshipValue = $request->get(Friend::FIELD_FRIENDSHIP_VALUE);
 
+		//Valid param id
+		if ($id === null || $id === "") {
+			$this->addException(new MissingParametersException(Friend::FIELD_ID), $json);
+		}
+
 		//Valid param friendshipValue
-		if ($friendshipValue === null) {
+		if ($friendshipValue === null || $friendshipValue === "") {
 			$this->addException(new MissingParametersException(Friend::FIELD_FRIENDSHIP_VALUE), $json);
 		} else if (!is_numeric($friendshipValue)) {
 			$this->addException(new WrongTypeForParameterException(Friend::FIELD_FRIENDSHIP_VALUE, gettype($friendshipValue), 'integer'), $json);
@@ -125,13 +130,16 @@ class SecondStepController extends AbstractController
 			$this->addException(new FriendshipOutOfBoundsException(), $json);
 		}
 
+		//If there was no error to that point
 		if(empty($json)) {
 			$friend = $friendRepository->find($id);
-			$friend->setFriendshipValue($friendshipValue);
-
-			$dm->flush();
-
-			$json = $friend;
+			if ($friend->getType() === "GOD") {
+				$this->addException(new GodDoesNotAcceptException(), $json);
+			} else {
+				$friend->setFriendshipValue($friendshipValue);
+				$dm->flush();
+				$json = $friend;
+			}
 		}
 
 		return $this->json($json);
