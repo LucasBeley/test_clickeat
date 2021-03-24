@@ -349,7 +349,7 @@ class SecondStepControllerTest extends ControllerTestCase
 			$this->assertContains(MissingParametersException::class, $errorTypes);
 		} else if (!is_numeric($friendshipValue)) {
 			$this->assertContains(WrongTypeForParameterException::class, $errorTypes);
-		} else if ($friendshipValue < 0 || $friendshipValue > 100) {
+		} else if ($friendshipValue < Friend::MIN_FRIENDSHIP_VALUE || $friendshipValue > Friend::MAX_FRIENDSHIP_VALUE) {
 			$this->assertContains(FriendshipOutOfBoundsException::class, $errorTypes);
 		}
 
@@ -381,11 +381,11 @@ class SecondStepControllerTest extends ControllerTestCase
 			[Friend::FIELD_TYPE => 'HOOMAN']
 		];
 		$tooHighFriendshipValue = [
-			150,
+			Friend::MAX_FRIENDSHIP_VALUE + 1,
 			[Friend::FIELD_TYPE => 'HOOMAN']
 		];
 		$tooLowFriendshipValue = [
-			-1,
+			Friend::MIN_FRIENDSHIP_VALUE - 1,
 			[Friend::FIELD_TYPE => 'HOOMAN']
 		];
 

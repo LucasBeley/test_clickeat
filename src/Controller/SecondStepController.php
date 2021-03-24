@@ -125,7 +125,7 @@ class SecondStepController extends AbstractController
 			$this->addException(new MissingParametersException(Friend::FIELD_FRIENDSHIP_VALUE), $json);
 		} else if (!is_numeric($friendshipValue)) {
 			$this->addException(new WrongTypeForParameterException(Friend::FIELD_FRIENDSHIP_VALUE, gettype($friendshipValue), 'integer'), $json);
-		} else if ($friendshipValue < 0 || $friendshipValue > 100) {
+		} else if ($friendshipValue < Friend::MIN_FRIENDSHIP_VALUE || $friendshipValue > Friend::MAX_FRIENDSHIP_VALUE) {
 			$this->addException(new FriendshipOutOfBoundsException(), $json);
 		}
 

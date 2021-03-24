@@ -127,7 +127,8 @@ class FirstStepControllerTest extends ControllerTestCase
 			$this->assertContains(MissingParametersException::class, $errorTypes);
 		} else if (!is_numeric($friend[Friend::FIELD_FRIENDSHIP_VALUE])) {
 			$this->assertContains(WrongTypeForParameterException::class, $errorTypes);
-		} else if ($friend[Friend::FIELD_FRIENDSHIP_VALUE] < 0 || $friend[Friend::FIELD_FRIENDSHIP_VALUE] > 100) {
+		} else if ($friend[Friend::FIELD_FRIENDSHIP_VALUE] < Friend::MIN_FRIENDSHIP_VALUE ||
+				   $friend[Friend::FIELD_FRIENDSHIP_VALUE] > Friend::MAX_FRIENDSHIP_VALUE) {
 			$this->assertContains(FriendshipOutOfBoundsException::class, $errorTypes);
 		}
 
@@ -214,14 +215,14 @@ class FirstStepControllerTest extends ControllerTestCase
 		$friendWithTooHighFriendship = [
 			Friend::FIELD_NAME => "FriendWithTooHighFriendship",
 			Friend::FIELD_TYPE => "NOOB",
-			Friend::FIELD_FRIENDSHIP_VALUE => 150,
+			Friend::FIELD_FRIENDSHIP_VALUE => Friend::MAX_FRIENDSHIP_VALUE + 1,
 			Friend::FIELD_TAGS => ["Tag 1", "Tag 2"],
 		];
 
 		$friendWithTooLowFriendship = [
 			Friend::FIELD_NAME => "FriendWithTooLowFriendship",
 			Friend::FIELD_TYPE => "NOOB",
-			Friend::FIELD_FRIENDSHIP_VALUE => -1,
+			Friend::FIELD_FRIENDSHIP_VALUE => Friend::MIN_FRIENDSHIP_VALUE - 1,
 			Friend::FIELD_TAGS => ["Tag 1", "Tag 2", "Tag 3"],
 		];
 
@@ -407,14 +408,14 @@ class FirstStepControllerTest extends ControllerTestCase
 		$friendWithTooHighFriendship = [
 			Friend::FIELD_NAME => "FriendWithTooHighFriendship",
 			Friend::FIELD_TYPE => "NOOB",
-			Friend::FIELD_FRIENDSHIP_VALUE => 150,
+			Friend::FIELD_FRIENDSHIP_VALUE => Friend::MAX_FRIENDSHIP_VALUE + 1,
 			Friend::FIELD_TAGS => ["Tag 1", "Tag 2"],
 		];
 
 		$friendWithTooLowFriendship = [
 			Friend::FIELD_NAME => "FriendWithTooLowFriendship",
 			Friend::FIELD_TYPE => "NOOB",
-			Friend::FIELD_FRIENDSHIP_VALUE => -1,
+			Friend::FIELD_FRIENDSHIP_VALUE => Friend::MIN_FRIENDSHIP_VALUE - 1,
 			Friend::FIELD_TAGS => ["Tag 1", "Tag 2", "Tag 3"],
 		];
 

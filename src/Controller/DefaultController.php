@@ -34,7 +34,7 @@ class DefaultController  extends AbstractController
 						Friend::FIELD_FRIENDSHIP_VALUE => [
 							'required' => true,
 							'type' => 'integer',
-							'constraints' => "Must be a value between 0 and 100",
+							'constraints' => "Must be a value between ".Friend::MIN_FRIENDSHIP_VALUE." and ".Friend::MAX_FRIENDSHIP_VALUE,
 						],
 						Friend::FIELD_TAGS => [
 							'required' => false,
@@ -94,7 +94,7 @@ class DefaultController  extends AbstractController
 						Friend::FIELD_FRIENDSHIP_VALUE => [
 							'required' => true,
 							'type' => 'integer',
-							'constraints' => "Must be a value between 0 and 100",
+							'constraints' => "Must be a value between ".Friend::MIN_FRIENDSHIP_VALUE." and ".Friend::MAX_FRIENDSHIP_VALUE,
 						]
 					]
 				],

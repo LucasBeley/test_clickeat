@@ -20,6 +20,9 @@ class Friend
 	const FIELD_TAGS = "tags";
 	const FIELD_EATEN = "eaten";
 
+	const MIN_FRIENDSHIP_VALUE = 0;
+	const MAX_FRIENDSHIP_VALUE = 100;
+
 	const TYPES = ['HOOMAN', 'NOOB', 'UNICORN', 'GOD'];
 
 	/**
