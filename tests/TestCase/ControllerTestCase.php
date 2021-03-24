@@ -9,6 +9,12 @@ use Graviton\MongoDB\Fixtures\FixturesTrait;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
+/**
+ * Class ControllerTestCase
+ * @package App\Tests\TestCase
+ *
+ * Add document manager and handle fixtures for MongoDB
+ */
 class ControllerTestCase extends WebTestCase
 {
 	use FixturesTrait;

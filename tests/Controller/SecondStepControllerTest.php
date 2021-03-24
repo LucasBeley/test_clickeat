@@ -44,14 +44,14 @@ class SecondStepControllerTest extends ControllerTestCase
 		//HTTP response is OK
 		$this->assertEquals(200, self::$client->getResponse()->getStatusCode());
 
-		//Returned object can be unserialized in a Friend document
+		//Returned object can be deserialized in a Friend document
 		try {
 			/** @var Friend $responseContent */
 			$responseContent = $serializer->deserialize(self::$client->getResponse()->getContent(), Friend::class, 'json');
 			$this->assertInstanceOf(Friend::class, $responseContent);
 			$this->assertTrue($responseContent->getEaten());
 		} catch (Exception $exception) {
-			$this->fail("Unserialization of json to Friend document failed.");
+			$this->fail("Deserialization of json to Friend document failed.");
 		}
 		$this->assertNotContains($responseContent->getType(), ['GOD', 'UNICORN']);
 
@@ -61,6 +61,21 @@ class SecondStepControllerTest extends ControllerTestCase
 		}
 
 		$this->assertCount($originalSizeDb, $repo->findAll());
+	}
+
+	public function provideCallTheMonsterOK(): array
+	{
+		$hoomanType = [
+			Friend::FIELD_TYPE => "HOOMAN",
+		];
+		$noobType = [
+			Friend::FIELD_TYPE => "NOOB",
+		];
+
+		return [
+			[$hoomanType],
+			[$noobType],
+		];
 	}
 
 	/**
@@ -91,7 +106,6 @@ class SecondStepControllerTest extends ControllerTestCase
 		$this->assertCount(0, $repo->findAll());
 	}
 
-
 	/**
 	 * Test the call of the monster with a Unicorn
 	 *
@@ -121,6 +135,17 @@ class SecondStepControllerTest extends ControllerTestCase
 		$this->assertArrayHasKey('unicornPower', $responseContent, array_keys($responseContent)[0]);
 
 		$this->assertCount($originalSizeDb, $repo->findAll());
+	}
+
+	public function provideCallTheMonsterUnicorn(): array
+	{
+		$unicornType = [
+			Friend::FIELD_TYPE => "UNICORN",
+		];
+
+		return [
+			[$unicornType]
+		];
 	}
 
 	/**
@@ -166,32 +191,6 @@ class SecondStepControllerTest extends ControllerTestCase
 		$this->assertCount($originalSizeDb, $repo->findAll());
 	}
 
-	public function provideCallTheMonsterOK(): array
-	{
-		$hoomanType = [
-			Friend::FIELD_TYPE => "HOOMAN",
-		];
-		$noobType = [
-			Friend::FIELD_TYPE => "NOOB",
-		];
-
-		return [
-			[$hoomanType],
-			[$noobType],
-		];
-	}
-
-	public function provideCallTheMonsterUnicorn(): array
-	{
-		$unicornType = [
-			Friend::FIELD_TYPE => "UNICORN",
-		];
-
-		return [
-			[$unicornType]
-		];
-	}
-
 	public function provideCallTheMonsterKO(): array
 	{
 		$godType = [
@@ -232,7 +231,7 @@ class SecondStepControllerTest extends ControllerTestCase
 				$this->assertTrue($friend->getEaten());
 				$this->assertNotContains($friend->getType(), ['GOD', 'UNICORN']);
 			} catch (Exception $exception) {
-				$this->fail("Unserialization of json to Friend document failed.");
+				$this->fail("Deserialization of json to Friend document failed.");
 			}
 		}
 
@@ -285,14 +284,14 @@ class SecondStepControllerTest extends ControllerTestCase
 		//HTTP response is OK
 		$this->assertEquals(200, self::$client->getResponse()->getStatusCode());
 
-		//Returned object can be unserialized in a Friend document
+		//Returned object can be deserialized in a Friend document
 		try {
 			/** @var Friend $responseContent */
 			$responseContent = $serializer->deserialize(self::$client->getResponse()->getContent(), Friend::class, 'json');
 			$this->assertInstanceOf(Friend::class, $responseContent);
 			$this->assertEquals($chosenFriendshipValue, $responseContent->getFriendshipValue());
 		} catch (Exception $exception) {
-			$this->fail("Unserialization of json to Friend document failed.");
+			$this->fail("Deserialization of json to Friend document failed.");
 		}
 		$this->assertNotEquals('GOD', $responseContent->getType());
 

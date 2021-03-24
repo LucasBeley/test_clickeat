@@ -20,10 +20,10 @@ class FirstStepControllerTest extends ControllerTestCase
 {
 	/**
 	 * Test the creation of a friend that should be OK
-	 * @dataProvider provideFriendsWithEveryPropertyGood
+	 * @dataProvider provideCreateFriendOK
 	 * @param array $friend
 	 */
-	public function testCreateFriend(array $friend)
+	public function testCreateFriendOK(array $friend)
 	{
 		$serializer = new Serializer([new GetSetMethodNormalizer()], [new JsonEncoder()]);
 		$repo = $this->documentManager->getRepository(Friend::class);
@@ -35,13 +35,13 @@ class FirstStepControllerTest extends ControllerTestCase
 		//HTTP response is OK
 		$this->assertEquals(200, self::$client->getResponse()->getStatusCode());
 
-		//Returned object can be unserialized in a Friend document
+		//Returned object can be deserialized in a Friend document
 		try {
 			/** @var Friend $responseContent */
 			$responseContent = $serializer->deserialize(self::$client->getResponse()->getContent(), Friend::class, 'json');
 			$this->assertInstanceOf(Friend::class, $responseContent);
 		} catch (Exception $exception) {
-			$this->fail("Unserialization of json to Friend document failed.");
+			$this->fail("Deserialization of json to Friend document failed.");
 		}
 
 		//Object properties are the ones given in the request
@@ -58,13 +58,34 @@ class FirstStepControllerTest extends ControllerTestCase
 		$this->assertCount($originalSizeDb + 1, $repo->findAll());
 	}
 
+	public function provideCreateFriendOK(): array
+	{
+		$friendWithAllGood = [
+			Friend::FIELD_NAME => "FriendWithAllGood",
+			Friend::FIELD_TYPE => "HOOMAN",
+			Friend::FIELD_FRIENDSHIP_VALUE => 50,
+			Friend::FIELD_TAGS => ["Tag 1", "Tag 2", "Tag 3"],
+		];
+
+		$friendWithNoTags = [
+			Friend::FIELD_NAME => "FriendWithNoTags",
+			Friend::FIELD_TYPE => "GOD",
+			Friend::FIELD_FRIENDSHIP_VALUE => 14
+		];
+
+		return [
+			[$friendWithAllGood],
+			[$friendWithNoTags]
+		];
+	}
+
 	/**
 	 * Test the creation of a friend that should be KO
 	 *
-	 * @dataProvider provideFriendsWithPropertyIssues
+	 * @dataProvider provideCreateFriendKO
 	 * @param array $friend
 	 */
-	public function testCreateFriendWithPropertyIssues(array $friend)
+	public function testCreateFriendKO(array $friend)
 	{
 		$repo = $this->documentManager->getRepository(Friend::class);
 		$originalSizeDb = count($repo->findAll());
@@ -119,28 +140,7 @@ class FirstStepControllerTest extends ControllerTestCase
 		$this->assertCount($originalSizeDb, $repo->findAll());
 	}
 
-	public function provideFriendsWithEveryPropertyGood(): array
-	{
-		$friendWithAllGood = [
-			Friend::FIELD_NAME => "FriendWithAllGood",
-			Friend::FIELD_TYPE => "HOOMAN",
-			Friend::FIELD_FRIENDSHIP_VALUE => 50,
-			Friend::FIELD_TAGS => ["Tag 1", "Tag 2", "Tag 3"],
-		];
-
-		$friendWithNoTags = [
-			Friend::FIELD_NAME => "FriendWithNoTags",
-			Friend::FIELD_TYPE => "GOD",
-			Friend::FIELD_FRIENDSHIP_VALUE => 14
-		];
-
-		return [
-			[$friendWithAllGood],
-			[$friendWithNoTags]
-		];
-	}
-
-	public function provideFriendsWithPropertyIssues(): array
+	public function provideCreateFriendKO(): array
 	{
 		$friendWithAllNull = [];
 
@@ -276,7 +276,7 @@ class FirstStepControllerTest extends ControllerTestCase
 				$friend = $serializer->deserialize(json_encode($responseContent[$i]), Friend::class, 'json');
 				$this->assertInstanceOf(Friend::class, $friend);
 			} catch (Exception $exception) {
-				$this->fail("Unserialization of json to Friend document failed.");
+				$this->fail("Deserialization of json to Friend document failed.");
 			}
 		}
 	}
@@ -331,7 +331,7 @@ class FirstStepControllerTest extends ControllerTestCase
 				$this->assertInstanceOf(Friend::class, $friend);
 				$friends[] = $friend;
 			} catch (Exception $exception) {
-				$this->fail("Unserialization of json to Friend document failed.");
+				$this->fail("Deserialization of json to Friend document failed.");
 			}
 		}
 

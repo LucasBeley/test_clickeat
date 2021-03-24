@@ -77,10 +77,9 @@ class SecondStepController extends AbstractController
 	}
 
 	/**
-	 * List all eaten friends
+	 * List all eaten friends, if no one has been eaten, specific return
 	 *
 	 * @Route(name="listEaten", path="/list_eaten")
-	 * @param Request $request
 	 * @param DocumentManager $dm
 	 * @return Response
 	 */
