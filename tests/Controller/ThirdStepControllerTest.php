@@ -103,4 +103,31 @@ class ThirdStepControllerTest extends ControllerTestCase
 		//Size of collection should not change
 		$this->assertCount($originalSizeDb, $repo->findAll());
 	}
+
+	/**
+	 * Test the deus ex machina
+	 */
+	public function testDeusExMachina()
+	{
+		$this->loadFixtures([FriendsFixture::class], false, self::DEFAULT_DOC_MANAGER_SERVICE);
+		$repo = $this->documentManager->getRepository(Friend::class);
+		$originalSizeDb = count($repo->findAll());
+
+		//Execute request
+		self::$client->request('GET', '/deus_ex_machina');
+
+		//HTTP response is OK
+		$this->assertEquals(200, self::$client->getResponse()->getStatusCode());
+
+		$responseContent = json_decode(self::$client->getResponse()->getContent(), true);
+
+		$this->assertArrayHasKey('deusExMachina', $responseContent);
+
+		//Everyone is non eaten
+		$nonEaten = $repo->findBy(['eaten' => ['$in' => [null, false]]]);
+		$this->assertCount($originalSizeDb, $nonEaten);
+
+		//Size of collection should not change
+		$this->assertCount($originalSizeDb, $repo->findAll());
+	}
 }
