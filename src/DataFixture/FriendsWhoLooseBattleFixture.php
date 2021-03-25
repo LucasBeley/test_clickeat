@@ -20,7 +20,7 @@ class FriendsWhoLooseBattleFixture extends Fixture implements FixtureInterface
 	 */
 	public function load(ObjectManager $manager) {
 
-		for($i = 0; $i < 600; $i++) {
+		for($i = 0; $i < 400; $i++) {
 			$friend = new Friend();
 			$friend->setName("Friend ".$i);
 			$friend->setType(Friend::TYPES[random_int(0, count(Friend::TYPES) - 1)]);
@@ -31,7 +31,7 @@ class FriendsWhoLooseBattleFixture extends Fixture implements FixtureInterface
 				$tags[] = "Tag ".random_int(0, 10);
 			}
 			$friend->setTags($tags);
-			$friend->setEaten($i < 500 && !in_array($friend->getType(), ['GOD', 'UNICORN']));
+			$friend->setEaten($i < 300 && !in_array($friend->getType(), ['GOD', 'UNICORN']));
 
 			$manager->persist($friend);
 		}

@@ -32,6 +32,11 @@ Open a terminal in the container that runs docker image 'php' and run the follow
 
 ``php bin/phpunit``
 
+Due to high number of elements in Fixtures, tests can exceed the parameter memory_limit for php. 
+To overcome the issue, you can run the scripts with higher memory limit: 
+
+``php -d memory_limit=256M bin/phpunit``
+
 Troubleshooting
 ---------------
 
