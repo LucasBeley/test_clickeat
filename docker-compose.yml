@@ -9,12 +9,9 @@ services:
       - '27017:27017'
 
   php:
-    image: lucasbeley/private-repo
     build:
       context: .
       dockerfile: docker/build/php/Dockerfile
-    volumes:
-      - ${APP_FOLDER}:/var/www/html
     ports:
       - '80:80'
     

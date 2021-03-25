@@ -11,4 +11,5 @@ RUN a2ensite test_clickeat.conf && a2dissite 000-default.conf && a2enmod rewrite
 
 COPY ${APP_FOLDER} /var/www/html
 
-RUN composer install
+RUN composer install \
+&& chown -R www-data:www-data ${APP_FOLDER}/var
