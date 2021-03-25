@@ -85,7 +85,7 @@ class ThirdStepController extends AbstractController
 		/** @var FriendRepository $friendRepository */
 		$friendRepository = $dm->getRepository(Friend::class);
 
-		//Make every human and noob non eaten
+		//Make every humans and noobs non eaten
 		$allNoobsAndHoomans = $friendRepository->findBy([Friend::FIELD_TYPE => ['$in' => ['NOOB', 'HOOMAN']]]);
 		/** @var Friend $friend */
 		foreach ($allNoobsAndHoomans as $friend) {

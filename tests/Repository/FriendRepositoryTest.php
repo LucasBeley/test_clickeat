@@ -7,7 +7,6 @@ use App\Document\Friend;
 use App\Repository\FriendRepository;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Graviton\MongoDB\Fixtures\FixturesTrait;
-use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class FriendRepositoryTest extends KernelTestCase

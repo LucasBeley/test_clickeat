@@ -11,6 +11,8 @@ use Symfony\Component\Routing\Annotation\Route;
 class DefaultController  extends AbstractController
 {
 	/**
+	 * Documentation page
+	 *
 	 * @Route(name="default", path="")
 	 */
 	public function index()

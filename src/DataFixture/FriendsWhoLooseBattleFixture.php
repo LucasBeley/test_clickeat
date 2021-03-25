@@ -13,6 +13,8 @@ use Graviton\MongoDB\Fixtures\FixtureInterface;
 class FriendsWhoLooseBattleFixture extends Fixture implements FixtureInterface
 {
 	/**
+	 * The majority of humans and noobs are eaten
+	 *
 	 * @param ObjectManager $manager
 	 * @throws Exception
 	 */

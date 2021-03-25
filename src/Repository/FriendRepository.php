@@ -5,7 +5,6 @@ namespace App\Repository;
 
 
 use App\Document\Friend;
-use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ODM\MongoDB\Repository\DocumentRepository;
 use Exception;
 
@@ -13,7 +12,7 @@ class FriendRepository extends DocumentRepository
 {
 	/**
 	 * Get the life of one side of the battle, Poppy vs friends
-	 * @param DocumentManager $dm
+	 *
 	 * @param array $eaten
 	 * @return int
 	 * @throws Exception

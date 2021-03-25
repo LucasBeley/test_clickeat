@@ -13,6 +13,8 @@ use Graviton\MongoDB\Fixtures\FixtureInterface;
 class NotRandomFriendsFixture extends Fixture implements FixtureInterface
 {
 	/**
+	 * Predetermine fixture to test value returns
+	 *
 	 * @param ObjectManager $manager
 	 * @throws Exception
 	 */

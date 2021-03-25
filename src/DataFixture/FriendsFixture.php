@@ -13,6 +13,9 @@ use Graviton\MongoDB\Fixtures\FixtureInterface;
 class FriendsFixture extends Fixture implements FixtureInterface
 {
 	/**
+	 * The majority of humans and noob are eaten
+	 * Also, each type oh friend is represented in a predetermined way
+	 *
 	 * @param ObjectManager $manager
 	 * @throws Exception
 	 */
