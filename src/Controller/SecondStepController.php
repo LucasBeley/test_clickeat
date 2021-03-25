@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Document\Friend;
 use App\Exception\EmptyDBException;
+use App\Exception\FriendNotFoundException;
 use App\Exception\FriendshipOutOfBoundsException;
 use App\Exception\GodDoesNotAcceptException;
 use App\Exception\MissingParametersException;
@@ -128,7 +129,9 @@ class SecondStepController extends AbstractController
 		//If there was no error to that point
 		if(empty($json)) {
 			$friend = $friendRepository->find($id);
-			if ($friend->getType() === "GOD") {
+			if ($friend === null) {
+				$this->addException(new FriendNotFoundException(), $json);
+			} else if ($friend->getType() === "GOD") {
 				$this->addException(new GodDoesNotAcceptException(), $json);
 			} else {
 				$friend->setFriendshipValue($friendshipValue);

@@ -5,6 +5,7 @@ namespace App\Tests\Controller;
 use App\DataFixture\FriendsFixture;
 use App\Document\Friend;
 use App\Exception\EmptyDBException;
+use App\Exception\FriendNotFoundException;
 use App\Exception\FriendshipOutOfBoundsException;
 use App\Exception\GodDoesNotAcceptException;
 use App\Exception\MissingParametersException;
@@ -339,7 +340,7 @@ class SecondStepControllerTest extends ControllerTestCase
 			return $element['exception'];
 		}, $responseContent['errors']);
 
-		//Check errors returned for friendshipValue
+		//Check errors returned for id
 		if (array_key_exists(Friend::FIELD_ID, $criteria) && $criteria[Friend::FIELD_ID] === null) {
 			$this->assertContains(MissingParametersException::class, $errorTypes);
 		}
@@ -357,6 +358,47 @@ class SecondStepControllerTest extends ControllerTestCase
 		if (array_key_exists(Friend::FIELD_TYPE, $criteria) && $criteria[Friend::FIELD_TYPE] === "GOD") {
 			$this->assertContains(GodDoesNotAcceptException::class, $errorTypes);
 		}
+
+		//Size of the collection should not change
+		$this->assertCount($originalSizeDb, $repo->findAll());
+	}
+
+	/**
+	 * Test changing a friendship value with a wrong id
+	 *
+	 * @param $friendshipValue
+	 * @param array $criteria
+	 */
+	public function testChangeFriendshipValueWrongID()
+	{
+		$this->loadFixtures([FriendsFixture::class], false, self::DEFAULT_DOC_MANAGER_SERVICE);
+		$repo = $this->documentManager->getRepository(Friend::class);
+		$originalSizeDb = count($repo->findAll());
+		$urlParams[Friend::FIELD_ID] = 'wrongId';
+		$urlParams[Friend::FIELD_FRIENDSHIP_VALUE] = 20;
+
+		//Execute request
+		self::$client->request(
+			'GET',
+			'/change_friendship_value',
+			$urlParams
+		);
+
+		//HTTP response is OK
+		$this->assertEquals(200, self::$client->getResponse()->getStatusCode());
+
+		$responseContent = json_decode(self::$client->getResponse()->getContent(), true);
+
+		//There should be an error
+		$this->assertArrayHasKey('errors', $responseContent);
+
+		//Map types of error in an array to simplify the check
+		$errorTypes = array_map(function ($element) {
+			return $element['exception'];
+		}, $responseContent['errors']);
+
+		//Check errors returned for id
+		$this->assertContains(FriendNotFoundException::class, $errorTypes);
 
 		//Size of the collection should not change
 		$this->assertCount($originalSizeDb, $repo->findAll());

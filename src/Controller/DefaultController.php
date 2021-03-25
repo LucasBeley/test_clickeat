@@ -69,8 +69,8 @@ class DefaultController  extends AbstractController
 				],
 
 				"/call_the_monster" => [
-					"description" => "Call the monster, it eats a friend of Poppy. Randomly if no parameters or selected id. 
-										Beware, GODS does not like to be eaten.",
+					"description" => "Call the monster, it eats a friend of Poppy. Randomly if no parameters or selected id.".
+										" Beware, GODS does not like to be eaten.",
 					"example" => "/call_the_monster",
 					"parameters" => [
 						Friend::FIELD_ID => [
@@ -102,9 +102,9 @@ class DefaultController  extends AbstractController
 				],
 
 				"/launch_the_battle" => [
-					"description" => "Launch the battle between Poppy and it's 'friends'. 
-										Each eaten friend give more life to Poppy (the friendship value).
-	 									If Poppy's life strictly overcome the sum of friendship values of not eaten friend, it wins",
+					"description" => "Launch the battle between Poppy and it's 'friends'.".
+										" Each eaten friend give more life to Poppy (the friendship value).".
+	 									" If Poppy's life strictly overcome the sum of friendship values of not eaten friend, it wins",
 					"example" => "/launch_the_battle",
 				],
 
