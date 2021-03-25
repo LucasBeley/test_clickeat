@@ -51,11 +51,7 @@ class SecondStepController extends AbstractController
 				$eaten = $friendRepository->find($id);
 			} else {
 				//Draw a random Friend
-				$builder = $dm->createAggregationBuilder(Friend::class);
-				$builder->hydrate(Friend::class);
-				$builder->sample(1);
-				/** @var Friend $eaten */
-				$eaten = $builder->getAggregation()->getIterator()->current();
+				$eaten = $friendRepository->pickOne();
 			}
 
 			//Specific return for Gods and Unicorns

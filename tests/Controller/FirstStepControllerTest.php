@@ -39,10 +39,10 @@ class FirstStepControllerTest extends ControllerTestCase
 		try {
 			/** @var Friend $responseContent */
 			$responseContent = $serializer->deserialize(self::$client->getResponse()->getContent(), Friend::class, 'json');
-			$this->assertInstanceOf(Friend::class, $responseContent);
 		} catch (Exception $exception) {
 			$this->fail("Deserialization of json to Friend document failed.");
 		}
+		$this->assertInstanceOf(Friend::class, $responseContent);
 
 		//Object properties are the ones given in the request
 		$this->assertNotNull($responseContent->getId());
@@ -275,10 +275,10 @@ class FirstStepControllerTest extends ControllerTestCase
 			try {
 				/** @var Friend $friend */
 				$friend = $serializer->deserialize(json_encode($responseContent[$i]), Friend::class, 'json');
-				$this->assertInstanceOf(Friend::class, $friend);
 			} catch (Exception $exception) {
 				$this->fail("Deserialization of json to Friend document failed.");
 			}
+			$this->assertInstanceOf(Friend::class, $friend);
 		}
 	}
 
@@ -329,11 +329,11 @@ class FirstStepControllerTest extends ControllerTestCase
 			try {
 				/** @var Friend $friend */
 				$friend = $serializer->deserialize(json_encode($responseContent[$i]), Friend::class, 'json');
-				$this->assertInstanceOf(Friend::class, $friend);
 				$friends[] = $friend;
 			} catch (Exception $exception) {
 				$this->fail("Deserialization of json to Friend document failed.");
 			}
+			$this->assertInstanceOf(Friend::class, $friend);
 		}
 
 		/** @var Friend $friendAsserted */

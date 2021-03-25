@@ -48,11 +48,11 @@ class SecondStepControllerTest extends ControllerTestCase
 		try {
 			/** @var Friend $responseContent */
 			$responseContent = $serializer->deserialize(self::$client->getResponse()->getContent(), Friend::class, 'json');
-			$this->assertInstanceOf(Friend::class, $responseContent);
-			$this->assertTrue($responseContent->getEaten());
 		} catch (Exception $exception) {
 			$this->fail("Deserialization of json to Friend document failed.");
 		}
+		$this->assertInstanceOf(Friend::class, $responseContent);
+		$this->assertTrue($responseContent->getEaten());
 		$this->assertNotContains($responseContent->getType(), ['GOD', 'UNICORN']);
 
 		if ($sacrifiedFriend !== null) {
@@ -227,12 +227,12 @@ class SecondStepControllerTest extends ControllerTestCase
 			try {
 				/** @var Friend $friend */
 				$friend = $serializer->deserialize(json_encode($responseContent[$i]), Friend::class, 'json');
-				$this->assertInstanceOf(Friend::class, $friend);
-				$this->assertTrue($friend->getEaten());
-				$this->assertNotContains($friend->getType(), ['GOD', 'UNICORN']);
 			} catch (Exception $exception) {
 				$this->fail("Deserialization of json to Friend document failed.");
 			}
+			$this->assertInstanceOf(Friend::class, $friend);
+			$this->assertTrue($friend->getEaten());
+			$this->assertNotContains($friend->getType(), ['GOD', 'UNICORN']);
 		}
 
 		//Size of the collection should not change
@@ -288,11 +288,11 @@ class SecondStepControllerTest extends ControllerTestCase
 		try {
 			/** @var Friend $responseContent */
 			$responseContent = $serializer->deserialize(self::$client->getResponse()->getContent(), Friend::class, 'json');
-			$this->assertInstanceOf(Friend::class, $responseContent);
-			$this->assertEquals($chosenFriendshipValue, $responseContent->getFriendshipValue());
 		} catch (Exception $exception) {
 			$this->fail("Deserialization of json to Friend document failed.");
 		}
+		$this->assertInstanceOf(Friend::class, $responseContent);
+		$this->assertEquals($chosenFriendshipValue, $responseContent->getFriendshipValue());
 		$this->assertNotEquals('GOD', $responseContent->getType());
 
 		//Size of the collection should not change
