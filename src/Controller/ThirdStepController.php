@@ -22,7 +22,7 @@ class ThirdStepController extends AbstractController
 	 * Launch the battle between Poppy and it's "friends"
 	 *
 	 * Each eaten friend give more life to Poppy (the friendship value).
-	 * If Poppy's life strictly overcome the sum of friendship values of not eaten friend, it win
+	 * If Poppy's life strictly overcome the sum of friendship values of not eaten friend, it wins
 	 *
 	 * @Route(name="launchTheBattle", path="/launch_the_battle")
 	 * @param DocumentManager $dm
@@ -44,7 +44,7 @@ class ThirdStepController extends AbstractController
 			return $this->json($json);
 		}
 
-		$json['battleLaunched'] = "A fierce battle rages between Poppy and it's \"friends\". They have understood that Poppy is the terrible monster that ate most of them. The want the head of the monster !!";
+		$json['battleLaunched'] = "A fierce battle rages between Poppy and it's 'friends'. They have understood that Poppy is the terrible monster that ate most of them. The want the head of the monster !!";
 
 		//Handle scores of the two sides of the battle
 		$poppyLife = $friendRepository->getSideLife([true]);

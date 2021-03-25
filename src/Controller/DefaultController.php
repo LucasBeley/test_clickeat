@@ -98,6 +98,18 @@ class DefaultController  extends AbstractController
 						]
 					]
 				],
+
+				"/launch_the_battle" => [
+					"description" => "Launch the battle between Poppy and it's 'friends'. 
+										Each eaten friend give more life to Poppy (the friendship value).
+	 									If Poppy's life strictly overcome the sum of friendship values of not eaten friend, it wins",
+					"example" => "/launch_the_battle",
+				],
+
+				"/deus_ex_machina" => [
+					"description" => "Gods come to save all eaten friends, they all become non eaten",
+					"example" => "/deus_ex_machina",
+				],
 			]
 		]);
 	}
