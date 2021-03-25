@@ -24,3 +24,10 @@ Usage
 Go to http://localhost.
 This page presents you a short documentation of all API endpoints with parameters and example.
 To use an API endpoint, simply type the URL in your browser.
+
+Run test
+--------
+
+Open a terminal in the container that runs docker image 'php' and run the following command:
+
+``php bin/phpunit``
