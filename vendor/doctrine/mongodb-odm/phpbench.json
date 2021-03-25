@@ -1,4 +1,0 @@
-{
-    "bootstrap": "tests/bootstrap.php",
-    "path": "benchmark"
-}
